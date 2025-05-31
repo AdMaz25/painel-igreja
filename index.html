@@ -9,17 +9,47 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
         }
         .calendar-event {
             line-height: 1.3;
         }
+        /* Cores para tipos de evento */
         .bg-event-culto { background-color: #ef4444; } /* red-500 */
         .bg-event-ebd { background-color: #6366f1; } /* indigo-500 */
         .bg-event-oracao { background-color: #14b8a6; } /* teal-500 */
         .bg-event-jovens { background-color: #f97316; } /* orange-500 */
         .bg-event-familia { background-color: #a855f7; } /* purple-500 */
         .bg-event-doutrina { background-color: #0ea5e9; } /* sky-500 */
+        .bg-event-informatica { background-color: #f59e0b; } /* amber-500 (cor padrão, substituída abaixo se neon) */
+        .bg-event-informatica-neon { background-color: #39FF14; color: #000000 !important; /* Verde Neon com texto preto */ }
+        .bg-event-especial { background-color: #d946ef; } /* fuchsia-500 */
+        /* .bg-event-reuniao { background-color: #84cc16; } // Removido lime-500 */
+
         .text-event-aniversario { color: #ec4899; } /* pink-500 */
+
+        button:focus, [role="button"]:focus, a:focus {
+            outline: 2px solid #3b82f6; /* blue-500 */
+            outline-offset: 2px;
+        }
+        .day-cell:focus-within { /* Para quando um elemento dentro da célula recebe foco */
+            outline: 2px solid #3b82f6; /* blue-500 */
+            outline-offset: -1px; 
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .loading-placeholder {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            background-color: #e5e7eb; /* gray-200 */
+            border-radius: 0.375rem; /* rounded-md */
+            min-height: 20px;
+        }
+        .loading-placeholder-text {
+            color: #6b7280; /* gray-500 */
+        }
     </style>
 </head>
 <body class="bg-gray-100 p-4 md:p-6">
@@ -31,16 +61,18 @@
         </div>
     </header>
 
-    <div class="pt-28 md:pt-32">
+    <main class="pt-28 md:pt-32">
         <div class="max-w-7xl mx-auto space-y-8">
 
-            <section id="next-event-section" class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
-                    <svg class="w-8 h-8 mr-3 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-3.75h.008v.008H12v-.008ZM12 15h.008v.008H12v-.008Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75v-.008Zm0 2.25h.008v.008H9.75v-.008Zm2.25-4.5h.008v.008H12v-.008Zm1.5.008h.008v.008H13.5v-.008Zm0 2.25h.008v.008H13.5v-.008Z" /></svg>
+            <section id="next-event-section" class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200" aria-labelledby="next-event-heading">
+                <h2 id="next-event-heading" class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-3.75h.008v.008H12v-.008ZM12 15h.008v.008H12v-.008Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75v-.008Zm0 2.25h.008v.008H9.75v-.008Zm2.25-4.5h.008v.008H12v-.008Zm1.5.008h.008v.008H13.5v-.008Zm0 2.25h.008v.008H13.5v-.008Z" /></svg>
                     Próximo Evento Principal
                 </h2>
                 <div id="next-event-details" class="text-gray-700" aria-live="polite">
-                    <p>Carregando...</p>
+                    <p class="loading-placeholder-text">Carregando próximo evento...</p>
+                    <div class="loading-placeholder h-6 w-3/4 mt-1"></div>
+                    <div class="loading-placeholder h-4 w-1/2 mt-1"></div>
                 </div>
             </section>
 
@@ -49,15 +81,15 @@
                     <section class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200" aria-labelledby="calendar-heading">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
                             <h2 id="calendar-heading" class="text-xl font-semibold text-gray-700 flex items-center mb-2 sm:mb-0">
-                                <svg class="w-8 h-8 mr-3 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
-                                <span id="calendar-month-year" class="text-xl font-semibold text-gray-700"></span>
+                                <svg class="w-8 h-8 mr-3 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
+                                <span id="calendar-month-year" class="text-xl font-semibold text-gray-700">Carregando...</span>
                             </h2>
                             <div class="flex space-x-1">
                                 <button id="prev-month" aria-label="Mês anterior" class="p-2 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
                                 </button>
                                 <button id="next-month" aria-label="Próximo mês" class="p-2 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
                                 </button>
                             </div>
                         </div>
@@ -65,222 +97,290 @@
                             <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
                         </div>
                         <div id="calendar-days" class="grid grid-cols-7 gap-1" role="grid" aria-live="polite">
-                            {/* Dias do calendário serão preenchidos aqui pelo JS */}
+                            <div class="loading-placeholder min-h-[90px]"></div> <div class="loading-placeholder min-h-[90px]"></div> <div class="loading-placeholder min-h-[90px]"></div> <div class="loading-placeholder min-h-[90px]"></div> <div class="loading-placeholder min-h-[90px]"></div> <div class="loading-placeholder min-h-[90px]"></div> <div class="loading-placeholder min-h-[90px]"></div>
                         </div>
-                        <div class="mt-4 space-x-2 space-y-1 text-xs text-gray-600">
-                            <span class="inline-flex items-center"><span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0 bg-event-culto"></span>Culto</span>
-                            <span class="inline-flex items-center"><span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0 bg-event-ebd"></span>EBD</span>
-                            <span class="inline-flex items-center"><span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0 bg-event-oracao"></span>Oração</span>
-                            <span class="inline-flex items-center"><span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0 bg-event-jovens"></span>Jovens</span>
-                            <span class="inline-flex items-center"><span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0 bg-event-familia"></span>Família</span>
-                            <span class="inline-flex items-center"><span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0 bg-event-doutrina"></span>Doutrina</span>
-                            <span class="inline-flex items-center"><span class="text-event-aniversario font-bold">🎂</span> Aniversário</span>
+                        <div class="mt-4 space-x-2 space-y-1 text-xs text-gray-600 flex flex-wrap" aria-label="Legenda de eventos">
+                            <span class="inline-flex items-center mr-2 mb-1"><span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0 bg-event-culto"></span>Culto</span>
+                            <span class="inline-flex items-center mr-2 mb-1"><span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0 bg-event-ebd"></span>EBD</span>
+                            <span class="inline-flex items-center mr-2 mb-1"><span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0 bg-event-oracao"></span>Oração</span>
+                            <span class="inline-flex items-center mr-2 mb-1"><span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0 bg-event-jovens"></span>Jovens</span>
+                            <span class="inline-flex items-center mr-2 mb-1"><span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0 bg-event-familia"></span>Família</span>
+                            <span class="inline-flex items-center mr-2 mb-1"><span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0 bg-event-doutrina"></span>Doutrina</span>
+                            <span class="inline-flex items-center mr-2 mb-1"><span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0 bg-event-informatica-neon"></span>Informática</span>
+                            <span class="inline-flex items-center mr-2 mb-1"><span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0 bg-event-especial"></span>Especial</span>
+                            <span class="inline-flex items-center mr-2 mb-1"><span class="text-event-aniversario font-bold">🎂</span> Aniversário</span>
                         </div>
                     </section>
 
                      <section id="worship-schedule-section" class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200" aria-labelledby="worship-schedule-heading">
                         <h2 id="worship-schedule-heading" class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
-                            <svg class="w-8 h-8 mr-3 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <svg class="w-8 h-8 mr-3 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25V12m0 0v6.75m0-6.75a3.75 3.75 0 0 1 3.75 3.75H8.25A3.75 3.75 0 0 1 12 12Z" />
                             </svg>
-                            Escala de Cultos
+                            Próximos Eventos e Cultos
                         </h2>
                         <div id="worship-schedule-details" class="space-y-4 text-sm text-gray-700" aria-live="polite">
-                            <p>Carregando...</p>
+                            <p class="loading-placeholder-text">Carregando escala de cultos...</p>
+                            <div class="loading-placeholder h-10 w-full"></div>
+                            <div class="loading-placeholder h-10 w-full mt-2"></div>
                         </div>
                     </section>
                 </div>
 
-                <div class="lg:col-span-1 space-y-8">
+                <aside class="lg:col-span-1 space-y-8">
                     <section class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200" aria-labelledby="cleaning-heading">
                         <h2 id="cleaning-heading" class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
-                            <svg class="w-8 h-8 mr-3 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg>
+                            <svg class="w-8 h-8 mr-3 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg>
                             Escala de Limpeza Semanal
                         </h2>
                         <div id="cleaning-schedule" class="space-y-3 text-sm" aria-live="polite">
-                            {/* Itens da escala de limpeza pelo JS */}
+                             <p class="loading-placeholder-text">Carregando escala de limpeza...</p>
+                             <div class="loading-placeholder h-8 w-full"></div>
+                             <div class="loading-placeholder h-8 w-full mt-2"></div>
                         </div>
                     </section>
 
                     <section class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200" aria-labelledby="birthdays-heading">
                         <div class="flex justify-between items-center mb-4">
                             <h2 id="birthdays-heading" class="text-xl font-semibold text-gray-700 flex items-center">
-                                <svg class="w-8 h-8 mr-3 text-pink-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a8.25 8.25 0 0 1-16.5 0v-8.25m16.5 0a3.75 3.75 0 0 0-7.5 0m7.5 0v-.375c0-.621-.504-1.125-1.125-1.125H13.5m-4.5 0v.375c0 .621.504 1.125 1.125 1.125h2.25M12 17.25a3.75 3.75 0 0 0 2.754-6.938q.114-.05.226-.1M12 17.25a3.75 3.75 0 0 1-2.754-6.938q-.114-.05-.226-.1M9 10.5a5.23 5.23 0 0 0-1.09 3.3c0 .899.32 1.724.86 2.362a5.209 5.209 0 0 0 4.46 0 5.23 5.23 0 0 0 .86-2.362c0-1.262-.422-2.428-1.09-3.3M15 10.5a5.23 5.23 0 0 1 1.09 3.3c0 .899-.32 1.724-.86 2.362a5.209 5.209 0 0 1-4.46 0 5.23 5.23 0 0 1-.86-2.362c0-1.262.422-2.428 1.09-3.3" /></svg>
+                                <svg class="w-8 h-8 mr-3 text-pink-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a8.25 8.25 0 0 1-16.5 0v-8.25m16.5 0a3.75 3.75 0 0 0-7.5 0m7.5 0v-.375c0-.621-.504-1.125-1.125-1.125H13.5m-4.5 0v.375c0 .621.504 1.125 1.125 1.125h2.25M12 17.25a3.75 3.75 0 0 0 2.754-6.938q.114-.05.226-.1M12 17.25a3.75 3.75 0 0 1-2.754-6.938q-.114-.05-.226-.1M9 10.5a5.23 5.23 0 0 0-1.09 3.3c0 .899.32 1.724.86 2.362a5.209 5.209 0 0 0 4.46 0 5.23 5.23 0 0 0 .86-2.362c0-1.262-.422-2.428-1.09-3.3M15 10.5a5.23 5.23 0 0 1 1.09 3.3c0 .899-.32 1.724-.86 2.362a5.209 5.209 0 0 1-4.46 0 5.23 5.23 0 0 1-.86-2.362c0-1.262.422-2.428 1.09-3.3" /></svg>
                                 Aniversariantes da Semana
                             </h2>
-                            <button id="download-birthdays" aria-label="Baixar resumo de aniversariantes" class="p-2 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                            <button id="download-birthdays" aria-label="Baixar resumo de aniversariantes em formato TXT" class="p-2 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                 </svg>
                             </button>
                         </div>
                         <div id="birthdays" class="space-y-3 text-sm" aria-live="polite">
-                            {/* Itens de aniversariantes pelo JS */}
+                             <p class="loading-placeholder-text">Carregando aniversariantes...</p>
+                             <div class="loading-placeholder h-8 w-full"></div>
+                             <div class="loading-placeholder h-8 w-full mt-2"></div>
                         </div>
                     </section>
-                </div>
+                </aside>
             </div>
         </div>
-    </div>
+    </main>
 
     <script>
     const PainelIgrejaApp = {
         config: {
-            today: new Date(), // Usa a data atual do sistema
+            panelReferenceDate: new Date(), 
             diasDaSemana: ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"],
             mesesDoAno: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
-            startOfWeekMonday: true,
+            startOfWeekMonday: false, 
+            principalEventTypes: ['culto', 'jovens', 'familia', 'doutrina', 'especial'],
+            eventTypeColors: {
+                culto: 'bg-event-culto',
+                ebd: 'bg-event-ebd',
+                oracao: 'bg-event-oracao',
+                jovens: 'bg-event-jovens',
+                familia: 'bg-event-familia',
+                doutrina: 'bg-event-doutrina',
+                informatica: 'bg-event-informatica-neon', 
+                especial: 'bg-event-especial', 
+                default: 'bg-gray-400'
+            },
+            eventTypeMainTextColors: {
+                culto: 'text-red-600',
+                jovens: 'text-orange-600',
+                familia: 'text-purple-600',
+                doutrina: 'text-sky-600',
+                informatica: 'text-black', 
+                especial: 'text-fuchsia-600',
+                default: 'text-blue-600'
+            }
         },
         state: {
-            currentDisplayDate: null,
+            currentDisplayDate: null, 
+            allProcessedEvents: [], 
         },
         data: {
             cleaningScheduleDefinition: [
-                { dayOfWeek: 1, responsible: "Iara e Tainá" },
-                { dayOfWeek: 2, responsible: "Núbia e Aldaline" },
-                { dayOfWeek: 3, responsible: "Kleverton e Alcidinei" },
-                { dayOfWeek: 4, responsible: "Niro e Lucas" },
-                { dayOfWeek: 5, responsible: "Deuzarina e Ana Aguiar" },
-                { dayOfWeek: 6, responsible: "João Paulo e Pedro Chagas" },
-                { dayOfWeek: 0, responsible: "Hélida, Emanuel, Wendel" }
+                { dayOfWeek: 1, responsible: ["Iara", "Tainá"] }, 
+                { dayOfWeek: 2, responsible: ["Núbia", "Aldaline"] }, 
+                { dayOfWeek: 3, responsible: ["Kleverton", "Alcidinei"] }, 
+                { dayOfWeek: 4, responsible: ["Niro", "Lucas"] }, 
+                { dayOfWeek: 5, responsible: ["Deuzarina", "Ana Aguiar"] }, 
+                { dayOfWeek: 6, responsible: ["João Paulo", "Pedro Chagas"] }, 
+                { dayOfWeek: 0, responsible: ["Hélida", "Emanuel", "Wendel"] } 
             ],
-            birthdays: [ // Dados estáticos de aniversariantes
+            birthdays: [
                 { name: "Lucas Mendes", date: "2025-05-28" },
                 { name: "Fernanda Costa", date: "2025-06-01" },
                 { name: "Ricardo Alves", date: "2025-05-30"},
                 { name: "Beatriz Almeida", date: "2025-06-05" },
                 { name: "João Silva", date: "2025-07-15" },
             ],
-            churchEvents: [ // Dados estáticos de eventos
-                { date: "2025-05-04", time: "19:00", type: "culto", title: "Culto de Domingo", direcao: "Pr. João", pregador: "Missionário Pedro" },
-                { date: "2025-05-11", time: "19:00", type: "culto", title: "Culto de Domingo (Dia Mães)", direcao: "Diácono Carlos", pregador: "Pra. Maria" },
-                { date: "2025-05-18", time: "19:00", type: "culto", title: "Culto de Domingo", direcao: "Presb. Antonio", pregador: "Pr. Visitante" },
-                { date: "2025-05-25", time: "19:00", type: "culto", title: "Culto de Domingo", direcao: "Jovem Líder", pregador: "Pr. João" },
-                { date: "2025-06-01", time: "19:00", type: "culto", title: "Culto de Domingo (Ceia)", direcao: "Pr. Presidente", pregador: "Pr. Presidente" },
-                { date: "2025-06-08", time: "19:00", type: "culto", title: "Culto de Domingo", direcao: "Diaconisa Ana", pregador: "Ev. Marcos" },
-                { date: "2025-05-31", time: "19:00", type: "jovens", title: "Culto Jovem", preacher: "Pr. Convidado" }, // Exemplo para 31/05
-                { date: "2025-05-06", time: "19:00", type: "doutrina", title: "Culto de Doutrina" },
-                { date: "2025-05-13", time: "19:00", type: "doutrina", title: "Culto de Doutrina" },
-                { date: "2025-05-07", time: "19:00", type: "oracao", title: "Círculo de Oração" },
-                { date: "2025-05-14", time: "19:00", type: "oracao", title: "Círculo de Oração" },
-                { date: "2025-05-03", time: "19:00", type: "jovens", title: "Culto Jovem" },
-                { date: "2025-05-04", time: "09:00", type: "ebd", title: "EBD" },
+            churchEventsBase: [ // Eventos únicos ou com detalhes específicos que não seguem regra de recorrência
+                { date: "2025-05-11", time: "19:00", type: "especial", title: "Culto Especial Dia das Mães" },
+                { date: "2025-08-10", time: "19:00", type: "especial", title: "Culto Especial Dia dos Pais" },
+                // Outros eventos base podem ser adicionados aqui
+            ],
+            recurringEventRules: [
+                { type: "ebd", title: "Escola Bíblica Dominical", dayOfWeek: 0, time: "09:00" },
+                { type: "doutrina", title: "Culto de Doutrina", dayOfWeek: 2, time: "19:30" }, 
+                { type: "familia", title: "Culto da Família", dayOfWeek: 4, time: "19:30" }, 
+                { type: "oracao", title: "Oração Semanal", dayOfWeek: 1, time: "19:00" }, 
+                { type: "oracao", title: "Oração", dayOfWeek: 2, time: "18:00" }, 
+                { type: "oracao", title: "Oração", dayOfWeek: 3, time: "18:00" }, 
+                { type: "oracao", title: "Oração", dayOfWeek: 4, time: "18:00" }, 
+                { type: "informatica", title: "Curso de Informática", dayOfWeek: 5, time: "19:00", obs: "Inscrições abertas" }, 
+                { type: "jovens", title: "Culto Jovem", dayOfWeek: 6, time: "19:30" }, // Todo Sábado
+                // Regra para Culto de Domingo padrão (será sobrescrita por eventos especiais de domingo)
+                { type: "culto", title: "Culto de Domingo", dayOfWeek: 0, time: "19:00" } 
             ]
         },
+
         utils: {
             parseDate: (dateString) => {
                 if (!dateString) return null;
-                const parts = dateString.split('-');
+                const parts = dateString.split(/[-/]/);
                 if (parts.length !== 3) return null;
-                return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                const year = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1; 
+                const day = parseInt(parts[2]);
+                if (isNaN(year) || isNaN(month) || isNaN(day)) return null;
+                return new Date(year, month, day);
             },
             formatDate: (dateObj, format = "DD/MM/AAAA") => {
-                if (!dateObj || !(dateObj instanceof Date)) return "";
+                if (!dateObj || !(dateObj instanceof Date) || isNaN(dateObj.getTime())) return "";
                 const day = String(dateObj.getDate()).padStart(2, '0');
-                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const month = String(dateObj.getMonth() + 1).padStart(2, '0'); 
                 const year = dateObj.getFullYear();
                 if (format === "AAAA-MM-DD") return `${year}-${month}-${day}`;
                 return `${day}/${month}/${year}`;
             },
-            createElement: (tag, classList = [], attributes = {}, textContent = null) => {
+            formatTime: (timeString) => { 
+                 if (!timeString) return "";
+                 const [hours, minutes] = timeString.split(':');
+                 return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+            },
+            addMinutesToTime: (timeString, minutesToAdd) => {
+                 const [hours, minutes] = timeString.split(':').map(Number);
+                 const date = new Date(); 
+                 date.setHours(hours, minutes, 0, 0);
+                 date.setMinutes(date.getMinutes() + minutesToAdd);
+                 return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+            },
+            createElement: (tag, classList = [], attributes = {}, textContent = null, innerHTML = null) => {
                 const el = document.createElement(tag);
-                const flatClassList = classList.flatMap(c => (typeof c === 'string' ? c.split(' ') : []));
+                const flatClassList = classList.flatMap(c => (typeof c === 'string' ? c.split(' ') : []))
+                                               .filter(c => c); 
                 if (flatClassList.length > 0) {
-                    el.classList.add(...flatClassList.filter(c => c));
+                    el.classList.add(...flatClassList);
                 }
                 for (const key in attributes) {
                     el.setAttribute(key, attributes[key]);
                 }
                 if (textContent) el.textContent = textContent;
+                if (innerHTML) el.innerHTML = innerHTML;
                 return el;
+            },
+            getNthDayOfMonth: (year, month, dayOfWeek, n) => { 
+                 const date = new Date(year, month, 1); 
+                 let count = 0;
+                 let occurrences = 0;
+
+                 while(date.getDay() !== dayOfWeek) {
+                     date.setDate(date.getDate() + 1);
+                     if (date.getMonth() !== month) return null; 
+                 }
+
+                 while(date.getMonth() === month) {
+                     occurrences++;
+                     if (occurrences === n) return new Date(date); 
+                     date.setDate(date.getDate() + 7);
+                 }
+                 return null; 
+            },
+            getLastDayOfWeekInMonth: (year, month, dayOfWeek) => {
+                let date = new Date(year, month + 1, 0); 
+                while (date.getDay() !== dayOfWeek) {
+                    date.setDate(date.getDate() - 1);
+                }
+                return date;
             }
         },
+
         renderNextEvent: function() {
             const detailsContainer = document.getElementById('next-event-details');
             if (!detailsContainer) { console.error("Elemento #next-event-details não encontrado."); return; }
-            detailsContainer.innerHTML = '';
+            detailsContainer.innerHTML = ''; 
+
+            const now = new Date(this.config.panelReferenceDate);
             
-            const now = new Date(this.config.today);
-            const todayFormatted = this.utils.formatDate(this.config.today, "AAAA-MM-DD");
+            const upcomingPrincipalEvents = this.state.allProcessedEvents
+                .map(event => ({ ...event, dateTime: this.utils.parseDate(`${event.date}T${event.time || '00:00:00'}`) }))
+                .filter(event => {
+                    if (!event.dateTime || event.dateTime < now) return false;
+                    return this.config.principalEventTypes.includes(event.type);
+                })
+                .sort((a, b) => a.dateTime - b.dateTime);
 
-            // Prioridade para "Culto de Hoje"
-            let nextEvent = this.data.churchEvents
-                .map(event => ({ ...event, dateTime: new Date(`${event.date}T${event.time || '00:00'}:00`) }))
-                .find(event => 
-                    event.date === todayFormatted && 
-                    event.title === "Culto de Hoje" && 
-                    event.dateTime >= now
-                );
-
-            if (!nextEvent) { // Se não houver "Culto de Hoje" ou já passou, busca o próximo evento principal
-                const upcomingPrincipalEvents = this.data.churchEvents
-                    .map(event => ({ ...event, dateTime: new Date(`${event.date}T${event.time || '00:00'}:00`) }))
-                    .filter(event => event.dateTime >= now && 
-                                    (event.type === 'culto' || event.type === 'jovens' || event.type === 'familia' || event.type === 'doutrina') &&
-                                    !(event.date === todayFormatted && event.title === "Culto de Hoje") // Evita duplicar se já foi considerado
-                    )
-                    .sort((a, b) => a.dateTime - b.dateTime);
-                if (upcomingPrincipalEvents.length > 0) {
-                    nextEvent = upcomingPrincipalEvents[0];
-                }
-            }
+            const nextEvent = upcomingPrincipalEvents.length > 0 ? upcomingPrincipalEvents[0] : null;
             
             if (nextEvent) {
                 const dayName = this.config.diasDaSemana[nextEvent.dateTime.getDay()];
                 const fragment = document.createDocumentFragment();
-                let p = this.utils.createElement('p', ['text-lg', 'font-semibold', `text-${nextEvent.type === 'jovens' ? 'orange' : 'blue'}-600`], {}, nextEvent.title); // Cor dinâmica simples
-                fragment.appendChild(p);
-                p = this.utils.createElement('p', ['text-sm', 'text-gray-600', 'mt-1']);
-                p.innerHTML = `<strong>Data:</strong> ${dayName}, ${this.utils.formatDate(nextEvent.dateTime)}`;
-                fragment.appendChild(p);
-                p = this.utils.createElement('p', ['text-sm', 'text-gray-600']);
-                p.innerHTML = `<strong>Horário:</strong> ${nextEvent.time}`;
-                fragment.appendChild(p);
+                
+                const colorClass = this.config.eventTypeMainTextColors[nextEvent.type] || this.config.eventTypeMainTextColors.default;
 
-                // Mostrar pregador/direção se aplicável e não for o "Culto de Hoje" (que tem detalhes na sua própria seção)
-                if (nextEvent.title !== "Culto de Hoje") {
-                    if (nextEvent.preacher) {
-                        p = this.utils.createElement('p', ['text-sm', 'text-gray-600', 'mt-1']);
-                        p.innerHTML = `<strong>Preletor:</strong> ${nextEvent.preacher}`;
-                        fragment.appendChild(p);
-                    }
-                } else { // Para o "Culto de Hoje", mostrar direção e pregador aqui também se for o próximo
-                     if (nextEvent.direcao) {
-                        p = this.utils.createElement('p', ['text-sm', 'text-gray-600', 'mt-1']);
-                        p.innerHTML = `<strong>Direção:</strong> ${nextEvent.direcao}`;
-                        fragment.appendChild(p);
-                    }
-                    if (nextEvent.pregador) {
-                        p = this.utils.createElement('p', ['text-sm', 'text-gray-600', 'mt-1']);
-                        p.innerHTML = `<strong>Pregador:</strong> ${nextEvent.pregador}`;
-                        fragment.appendChild(p);
-                    }
+                fragment.appendChild(this.utils.createElement('p', ['text-lg', 'font-semibold', colorClass], {}, nextEvent.title));
+                fragment.appendChild(this.utils.createElement('p', ['text-sm', 'text-gray-600', 'mt-1'], {}, null, `<strong>Data:</strong> ${dayName}, ${this.utils.formatDate(nextEvent.dateTime)}`));
+                fragment.appendChild(this.utils.createElement('p', ['text-sm', 'text-gray-600'], {}, null, `<strong>Horário:</strong> ${this.utils.formatTime(nextEvent.time)}`));
+
+                // Não mostrar direção/pregador aqui
+                if (nextEvent.local) {
+                    fragment.appendChild(this.utils.createElement('p', ['text-sm', 'text-gray-600', 'mt-1'], {}, null, `<strong>Local:</strong> ${nextEvent.local}`));
+                }
+                if (nextEvent.obs) {
+                    fragment.appendChild(this.utils.createElement('p', ['text-xs', 'text-blue-600', 'mt-1', 'italic'], {}, `Obs: ${nextEvent.obs}`));
                 }
                 detailsContainer.appendChild(fragment);
             } else {
                 detailsContainer.textContent = "Nenhum evento principal programado.";
             }
         },
+
         renderCleaningSchedule: function() {
             const scheduleContainer = document.getElementById('cleaning-schedule');
             if (!scheduleContainer) { console.error("Elemento #cleaning-schedule não encontrado."); return; }
             scheduleContainer.innerHTML = '';
-            const todayDayOfWeek = this.config.today.getDay();
+            const todayDayOfWeek = this.config.panelReferenceDate.getDay();
             const fragment = document.createDocumentFragment();
+
             const orderedSchedule = [...this.data.cleaningScheduleDefinition].sort((a, b) => {
-                let dayA = a.dayOfWeek; let dayB = b.dayOfWeek;
-                if (this.config.startOfWeekMonday) { dayA = (dayA === 0) ? 7 : dayA; dayB = (dayB === 0) ? 7 : dayB; }
+                let dayA = a.dayOfWeek;
+                let dayB = b.dayOfWeek;
+                if (this.config.startOfWeekMonday) { 
+                    dayA = (dayA === 0) ? 7 : dayA;
+                    dayB = (dayB === 0) ? 7 : dayB;
+                }
                 return dayA - dayB;
             });
+
             orderedSchedule.forEach(item => {
                 const isCurrentDay = item.dayOfWeek === todayDayOfWeek;
-                const itemDiv = this.utils.createElement('div', ['py-2', 'pl-3', 'border-l-4', isCurrentDay ? 'border-blue-500 bg-blue-50 rounded-r-md' : 'border-gray-300']);
+                const itemDivClasses = ['py-2', 'pl-3', 'border-l-4'];
+                if (isCurrentDay) {
+                    itemDivClasses.push('border-blue-500', 'bg-blue-50', 'rounded-r-md');
+                } else {
+                    itemDivClasses.push('border-gray-300');
+                }
+                const itemDiv = this.utils.createElement('div', itemDivClasses);
+
                 let dayName = this.config.diasDaSemana[item.dayOfWeek];
                 if (isCurrentDay) dayName += " (Hoje)";
+                
                 const pDay = this.utils.createElement('p', ['font-semibold', isCurrentDay ? 'text-blue-600' : 'text-gray-800'], {}, dayName);
-                const pResponsible = this.utils.createElement('p', ['text-xs', 'text-gray-600']);
-                pResponsible.innerHTML = `<span class="font-medium">${item.responsible}</span>`;
-                itemDiv.appendChild(pDay); itemDiv.appendChild(pResponsible); fragment.appendChild(itemDiv);
+                const responsibleText = Array.isArray(item.responsible) ? item.responsible.join(' e ') : item.responsible;
+                const pResponsible = this.utils.createElement('p', ['text-xs', 'text-gray-600'], {}, null, `<span class="font-medium">${responsibleText}</span>`);
+                
+                itemDiv.appendChild(pDay); 
+                itemDiv.appendChild(pResponsible); 
+                fragment.appendChild(itemDiv);
             });
             scheduleContainer.appendChild(fragment);
         },
@@ -289,61 +389,68 @@
             const detailsContainer = document.getElementById('worship-schedule-details');
             if (!detailsContainer) { console.error("Elemento #worship-schedule-details não encontrado."); return; }
             detailsContainer.innerHTML = '';
-            const now = new Date(this.config.today);
+            const now = new Date(this.config.panelReferenceDate);
             now.setHours(0,0,0,0); 
 
-            const upcomingServices = this.data.churchEvents
-                .filter(event => event.type === 'culto')
-                .map(event => ({ ...event, dateTime: new Date(`${event.date}T${event.time || '00:00'}:00`) }))
-                .filter(event => event.dateTime >= now)
+            const upcomingServices = this.state.allProcessedEvents
+                .filter(event => this.config.principalEventTypes.includes(event.type)) 
+                .map(event => ({ ...event, dateTime: this.utils.parseDate(`${event.date}T${event.time || '00:00:00'}`) }))
+                .filter(event => event.dateTime && event.dateTime >= now)
                 .sort((a, b) => a.dateTime - b.dateTime)
                 .slice(0, 5); 
 
             if (upcomingServices.length > 0) {
                 const fragment = document.createDocumentFragment();
-                const todayDateString = this.config.today.toDateString();
+                const todayDateString = this.config.panelReferenceDate.toDateString();
 
                 upcomingServices.forEach(service => {
                     const isTodayService = service.dateTime.toDateString() === todayDateString;
                     const dayName = this.config.diasDaSemana[service.dateTime.getDay()];
                     const formattedDate = this.utils.formatDate(service.dateTime);
                     
-                    const serviceClasses = ['p-3', 'rounded-md', 'border', 'border-gray-200'];
+                    const serviceBaseClasses = ['p-3', 'rounded-md', 'border'];
                     let titleClasses = ['font-semibold'];
-                    let textClasses = [];
+                    let textClasses = []; // Para o texto dos detalhes, se houver
+                    let bgColorClass = this.config.eventTypeColors[service.type] || this.config.eventTypeColors.default;
 
                     if (isTodayService) {
-                        serviceClasses.push(`bg-event-${service.type}`, 'text-white');
-                        titleClasses.push('text-white'); // Garante que o título também seja branco
-                        textClasses.push('text-gray-100'); // Para o texto dos detalhes
+                        serviceBaseClasses.push(bgColorClass, 'text-white', 'border-transparent', 'shadow-md');
+                        if (service.type !== 'informatica') { 
+                           titleClasses.push('text-white'); 
+                           textClasses.push('text-gray-100');
+                        } else { 
+                           titleClasses.push('text-black');
+                           textClasses.push('text-black');
+                        }
                     } else {
-                        serviceClasses.push('bg-gray-50');
-                        titleClasses.push('text-purple-700');
-                        textClasses.push('text-gray-700');
+                        serviceBaseClasses.push('bg-gray-50', 'border-gray-200');
+                        titleClasses.push(this.config.eventTypeMainTextColors[service.type] || this.config.eventTypeMainTextColors.default);
+                         if (service.type === 'informatica') {
+                            textClasses.push('text-black'); 
+                        } else {
+                            textClasses.push('text-gray-700');
+                        }
                     }
 
-                    const serviceDiv = this.utils.createElement('div', serviceClasses);
+                    const serviceDiv = this.utils.createElement('div', serviceBaseClasses);
                     
-                    let titleText = `${service.title} - ${dayName}, ${formattedDate} às ${service.time}`;
+                    let titleText = `${service.title} - ${dayName}, ${formattedDate} às ${this.utils.formatTime(service.time)}`;
                     if (isTodayService) titleText += " (Hoje)";
-                    let titleP = this.utils.createElement('p', titleClasses, {}, titleText);
-                    serviceDiv.appendChild(titleP);
 
-                    if (service.direcao) {
-                        let direcaoP = this.utils.createElement('p', ['mt-1', ...textClasses]);
-                        direcaoP.innerHTML = `<strong>Direção:</strong> ${service.direcao}`;
-                        serviceDiv.appendChild(direcaoP);
+                    serviceDiv.appendChild(this.utils.createElement('p', titleClasses, {}, titleText));
+
+                    // Não mostrar direção/pregador aqui
+                     if (service.local) {
+                         serviceDiv.appendChild(this.utils.createElement('p', ['mt-1', ...textClasses], {}, null, `<strong>Local:</strong> ${service.local}`));
                     }
-                    if (service.pregador) {
-                        let pregadorP = this.utils.createElement('p', ['mt-1', ...textClasses]);
-                        pregadorP.innerHTML = `<strong>Pregador:</strong> ${service.pregador}`;
-                        serviceDiv.appendChild(pregadorP);
+                    if (service.obs) {
+                         serviceDiv.appendChild(this.utils.createElement('p', ['text-xs', isTodayService && service.type !== 'informatica' ? 'text-gray-200' : (service.type === 'informatica' ? 'text-gray-700' : 'text-blue-600'), 'mt-1', 'italic'], {}, `Obs: ${service.obs}`));
                     }
                     fragment.appendChild(serviceDiv);
                 });
                 detailsContainer.appendChild(fragment);
             } else {
-                detailsContainer.textContent = "Nenhuma escala de culto programada para os próximos dias.";
+                detailsContainer.textContent = "Nenhuma escala de culto ou evento especial programada para os próximos dias.";
             }
         },
 
@@ -351,15 +458,25 @@
             const birthdayContainer = document.getElementById('birthdays');
             if (!birthdayContainer) { console.error("Elemento #birthdays não encontrado."); return; }
             birthdayContainer.innerHTML = '';
-            const todayRef = new Date(this.config.today); todayRef.setHours(0, 0, 0, 0);
+            
+            const todayRef = new Date(this.config.panelReferenceDate); todayRef.setHours(0, 0, 0, 0);
             const startOfWeek = new Date(todayRef);
-            const dayOffset = this.config.startOfWeekMonday ? (todayRef.getDay() === 0 ? -6 : 1 - todayRef.getDay()) : -todayRef.getDay();
+            const dayOffset = this.config.startOfWeekMonday ? 
+                                (todayRef.getDay() === 0 ? -6 : 1 - todayRef.getDay()) : 
+                                -todayRef.getDay();
             startOfWeek.setDate(todayRef.getDate() + dayOffset);
-            const endOfWeek = new Date(startOfWeek); endOfWeek.setDate(startOfWeek.getDate() + 6); endOfWeek.setHours(23, 59, 59, 999);
+            
+            const endOfWeek = new Date(startOfWeek); 
+            endOfWeek.setDate(startOfWeek.getDate() + 6); 
+            endOfWeek.setHours(23, 59, 59, 999);
+            
             const fragment = document.createDocumentFragment();
             const weekBirthdays = this.data.birthdays
                 .map(b => ({ ...b, parsedDate: this.utils.parseDate(b.date) }))
-                .filter(b => b.parsedDate && b.parsedDate >= startOfWeek && b.parsedDate <= endOfWeek)
+                .filter(b => {
+                    if (!b.parsedDate) return false;
+                    return b.parsedDate >= startOfWeek && b.parsedDate <= endOfWeek;
+                })
                 .sort((a, b) => a.parsedDate - b.parsedDate);
 
             if (weekBirthdays.length === 0) {
@@ -368,17 +485,25 @@
             }
             weekBirthdays.forEach(b => {
                 const isToday = b.parsedDate.toDateString() === todayRef.toDateString();
-                const itemDiv = this.utils.createElement('div', ['py-2', isToday ? 'bg-pink-50 text-pink-700 rounded-md p-2' : '']);
+                const itemDivClasses = ['py-2'];
+                if (isToday) itemDivClasses.push('bg-pink-50', 'text-pink-700', 'rounded-md', 'p-2', 'font-semibold');
+
+                const itemDiv = this.utils.createElement('div', itemDivClasses);
                 let dateString = `${this.config.diasDaSemana[b.parsedDate.getDay()]}, ${b.parsedDate.getDate()} de ${this.config.mesesDoAno[b.parsedDate.getMonth()]}`;
                 if (isToday) dateString += " (Hoje! 🎉)";
+                
                 const pName = this.utils.createElement('p', ['font-semibold', isToday ? 'text-pink-700' : 'text-gray-800'], {}, b.name);
                 const pDate = this.utils.createElement('p', ['text-xs', isToday ? 'text-pink-600' : 'text-gray-600'], {}, dateString);
-                itemDiv.appendChild(pName); itemDiv.appendChild(pDate); fragment.appendChild(itemDiv);
+                
+                itemDiv.appendChild(pName); 
+                itemDiv.appendChild(pDate); 
+                fragment.appendChild(itemDiv);
             });
             birthdayContainer.appendChild(fragment);
         },
+
         downloadBirthdaysSummary: function() {
-            const todayRef = new Date(this.config.today); todayRef.setHours(0, 0, 0, 0);
+            const todayRef = new Date(this.config.panelReferenceDate); todayRef.setHours(0, 0, 0, 0);
             const startOfWeek = new Date(todayRef);
             const dayOffset = this.config.startOfWeekMonday ? (todayRef.getDay() === 0 ? -6 : 1 - todayRef.getDay()) : -todayRef.getDay();
             startOfWeek.setDate(todayRef.getDate() + dayOffset);
@@ -390,11 +515,11 @@
                 .sort((a, b) => a.parsedDate - b.parsedDate);
 
             if (weekBirthdays.length === 0) {
-                console.log("Nenhum aniversariante na semana para baixar."); // Idealmente, use um modal/toast
+                alert("Nenhum aniversariante na semana para baixar.");
                 return;
             }
 
-            let summaryText = "Aniversariantes da Semana:\n\n";
+            let summaryText = `Aniversariantes da Semana (${this.utils.formatDate(startOfWeek)} - ${this.utils.formatDate(endOfWeek)}):\n\n`;
             weekBirthdays.forEach(b => {
                 summaryText += `${b.name} - ${this.utils.formatDate(b.parsedDate)} (${this.config.diasDaSemana[b.parsedDate.getDay()]})\n`;
             });
@@ -408,65 +533,122 @@
             document.body.removeChild(link);
             URL.revokeObjectURL(link.href);
         },
+        
         renderCalendar: function() {
             const calendarDaysContainer = document.getElementById('calendar-days');
             const calendarMonthYearEl = document.getElementById('calendar-month-year');
             if (!calendarDaysContainer || !calendarMonthYearEl) { console.error("Elementos do calendário não encontrados."); return; }
-            calendarDaysContainer.innerHTML = ''; const fragment = document.createDocumentFragment();
+            
+            calendarDaysContainer.innerHTML = ''; 
+            const fragment = document.createDocumentFragment();
+            
             calendarMonthYearEl.textContent = `${this.config.mesesDoAno[this.state.currentDisplayDate.getMonth()]} ${this.state.currentDisplayDate.getFullYear()}`;
             calendarDaysContainer.setAttribute('aria-label', `Calendário de ${calendarMonthYearEl.textContent}`);
-            const year = this.state.currentDisplayDate.getFullYear(); const month = this.state.currentDisplayDate.getMonth();
-            const firstDayOfMonth = new Date(year, month, 1); const lastDayOfMonth = new Date(year, month + 1, 0);
-            const daysInMonth = lastDayOfMonth.getDate(); let startDayOfWeek = firstDayOfMonth.getDay();
-            let displayStartOffset = startDayOfWeek;
-            const todayRef = new Date(this.config.today); todayRef.setHours(0,0,0,0);
+            
+            const year = this.state.currentDisplayDate.getFullYear(); 
+            const month = this.state.currentDisplayDate.getMonth();
+            
+            const firstDayOfMonth = new Date(year, month, 1);
+            const lastDayOfMonth = new Date(year, month + 1, 0);
+            const daysInMonth = lastDayOfMonth.getDate();
+            
+            let startDayOfWeekIndex = firstDayOfMonth.getDay(); 
+            let displayStartOffset = startDayOfWeekIndex; 
+
+            const todayRef = new Date(this.config.panelReferenceDate); todayRef.setHours(0,0,0,0);
             const prevMonthLastDay = new Date(year, month, 0).getDate();
+
             for (let i = 0; i < displayStartOffset; i++) {
                 const day = prevMonthLastDay - displayStartOffset + 1 + i;
-                const dayEl = this.utils.createElement('div', ['min-h-[90px]', 'p-1', 'rounded-md', 'bg-gray-50', 'border', 'border-gray-200', 'flex', 'flex-col', 'items-start', 'text-xs']);
-                dayEl.setAttribute('role', 'gridcell'); dayEl.setAttribute('aria-label', `${day} (mês anterior)`);
+                const dayEl = this.utils.createElement('div', ['day-cell', 'min-h-[90px]', 'md:min-h-[100px]', 'p-1', 'rounded-md', 'bg-gray-50', 'border', 'border-gray-200', 'flex', 'flex-col', 'items-start', 'text-xs', 'opacity-75']);
+                dayEl.setAttribute('role', 'gridcell');
+                dayEl.setAttribute('aria-label', `${day} (mês anterior)`);
                 dayEl.appendChild(this.utils.createElement('span', ['font-semibold', 'text-gray-400', 'self-end', 'p-1', 'leading-none'], {}, day.toString()));
                 fragment.appendChild(dayEl);
             }
+
             for (let day = 1; day <= daysInMonth; day++) {
                 const currentDate = new Date(year, month, day);
-                const dayClasses = ['min-h-[90px]', 'p-1', 'rounded-md', 'border', 'flex', 'flex-col', 'items-start', 'text-xs', 'hover:bg-gray-50', 'transition-colors'];
+                const dayClasses = ['day-cell', 'min-h-[90px]', 'md:min-h-[100px]', 'p-1', 'rounded-md', 'border', 'flex', 'flex-col', 'items-start', 'text-xs', 'hover:bg-gray-50', 'transition-colors', 'relative'];
                 let ariaLabelDay = `${day} de ${this.config.mesesDoAno[month]}, ${this.config.diasDaSemana[currentDate.getDay()]}`;
-                if (currentDate.toDateString() === todayRef.toDateString()) { dayClasses.push('bg-blue-500', 'border-blue-600'); } else { dayClasses.push('bg-white', 'border-gray-200'); }
-                const dayEl = this.utils.createElement('div', dayClasses); dayEl.setAttribute('role', 'gridcell');
-                const dayNumberClasses = ['font-semibold', 'self-end', 'p-0.5', 'leading-none', 'w-6', 'h-6', 'flex', 'items-center', 'justify-center', 'rounded-full'];
-                if (currentDate.toDateString() === todayRef.toDateString()) { dayNumberClasses.push('bg-blue-500', 'text-white'); } else { dayNumberClasses.push('text-gray-700'); }
-                dayEl.appendChild(this.utils.createElement('span', dayNumberClasses, {}, day.toString()));
-                const eventsOnThisDay = this.data.churchEvents.filter(e => e.date === this.utils.formatDate(currentDate, "AAAA-MM-DD"));
-                const birthdaysOnThisDay = this.data.birthdays.filter(b => {
-                    const bDate = this.utils.parseDate(b.date);
-                    return bDate && bDate.getDate() === day && bDate.getMonth() === month && bDate.getFullYear() === year;
-                });
-                let eventInfosForAria = []; const eventsContainer = this.utils.createElement('div', ['w-full', 'mt-0.5', 'space-y-0.5', 'overflow-hidden']);
-                eventsOnThisDay.forEach(event => {
-                    const eventDiv = this.utils.createElement('div', ['calendar-event', `bg-event-${event.type}`, 'text-white', 'text-[0.7rem]', 'px-1', 'py-0.5', 'rounded', 'truncate', 'w-full'], {}, event.title);
-                    eventDiv.setAttribute('title', `${event.title} às ${event.time}`);
-                    eventsContainer.appendChild(eventDiv); eventInfosForAria.push(`${event.title} às ${event.time}`);
-                });
-                if (birthdaysOnThisDay.length > 0) {
-                    const bDayDiv = this.utils.createElement('div', ['calendar-event', 'flex', 'items-center', 'text-[0.7rem]', 'px-1', 'py-0.5', 'rounded', 'bg-pink-100', 'w-full']);
-                    bDayDiv.innerHTML = `<span class="text-event-aniversario font-bold mr-1">🎂</span> <span class="text-pink-700 truncate">${birthdaysOnThisDay.map(b => b.name.split(' ')[0]).join(', ')}</span>`;
-                    bDayDiv.setAttribute('title', `Aniversário: ${birthdaysOnThisDay.map(b => b.name).join(', ')}`);
-                    eventsContainer.appendChild(bDayDiv); eventInfosForAria.push(`${birthdaysOnThisDay.length} aniversariante(s): ${birthdaysOnThisDay.map(b => b.name).join(', ')}`);
+                
+                const isToday = currentDate.toDateString() === todayRef.toDateString();
+                if (isToday) { 
+                    dayClasses.push('bg-blue-100', 'border-blue-300'); 
+                } else { 
+                    dayClasses.push('bg-white', 'border-gray-200'); 
                 }
+                
+                const dayEl = this.utils.createElement('div', dayClasses); 
+                dayEl.setAttribute('role', 'gridcell');
+                dayEl.setAttribute('tabindex', '0'); 
+
+                const dayNumberClasses = ['font-semibold', 'self-end', 'p-0.5', 'leading-none', 'w-6', 'h-6', 'flex', 'items-center', 'justify-center', 'rounded-full', 'mb-0.5'];
+                if (isToday) { 
+                    dayNumberClasses.push('bg-blue-500', 'text-white'); 
+                } else { 
+                    dayNumberClasses.push('text-gray-700'); 
+                }
+                dayEl.appendChild(this.utils.createElement('span', dayNumberClasses, {}, day.toString()));
+
+                const eventsContainer = this.utils.createElement('div', ['w-full', 'mt-0.5', 'space-y-0.5', 'overflow-hidden', 'flex-grow']);
+                let eventInfosForAria = [];
+
+                this.state.allProcessedEvents
+                    .filter(e => e.date === this.utils.formatDate(currentDate, "AAAA-MM-DD"))
+                    .forEach(event => {
+                        const bgColorClass = this.config.eventTypeColors[event.type] || this.config.eventTypeColors.default;
+                        let textColorClass = 'text-white';
+                        if (event.type === 'informatica' && bgColorClass === 'bg-event-informatica-neon') {
+                            textColorClass = 'text-black';
+                        }
+
+                        const eventDiv = this.utils.createElement('div', 
+                            ['calendar-event', bgColorClass, textColorClass, 'text-[0.65rem]', 'sm:text-[0.7rem]', 'px-1', 'py-0.5', 'rounded', 'truncate', 'w-full'], 
+                            { title: `${event.title} às ${this.utils.formatTime(event.time)}` }, 
+                            event.title
+                        );
+                        eventsContainer.appendChild(eventDiv); 
+                        eventInfosForAria.push(`${event.title} às ${this.utils.formatTime(event.time)}`);
+                    });
+
+                this.data.birthdays
+                    .filter(b => {
+                        const bDate = this.utils.parseDate(b.date);
+                        return bDate && bDate.getDate() === day && bDate.getMonth() === month; 
+                    })
+                    .forEach(b => {
+                        const bDayDiv = this.utils.createElement('div', 
+                            ['calendar-event', 'flex', 'items-center', 'text-[0.65rem]', 'sm:text-[0.7rem]', 'px-1', 'py-0.5', 'rounded', 'bg-pink-100', 'w-full'],
+                            { title: `Aniversário: ${b.name}` }
+                        );
+                        bDayDiv.innerHTML = `<span class="text-event-aniversario font-bold mr-1">🎂</span> <span class="text-pink-700 truncate">${b.name.split(' ')[0]}</span>`;
+                        eventsContainer.appendChild(bDayDiv); 
+                        eventInfosForAria.push(`Aniversário: ${b.name}`);
+                    });
+                
                 dayEl.appendChild(eventsContainer);
-                if(eventInfosForAria.length > 0) { ariaLabelDay += `. Eventos: ${eventInfosForAria.join("; ")}`; }
-                dayEl.setAttribute('aria-label', ariaLabelDay); fragment.appendChild(dayEl);
+                if(eventInfosForAria.length > 0) { 
+                    ariaLabelDay += `. Eventos: ${eventInfosForAria.join("; ")}`; 
+                } else {
+                    ariaLabelDay += ". Nenhum evento ou aniversário.";
+                }
+                dayEl.setAttribute('aria-label', ariaLabelDay); 
+                fragment.appendChild(dayEl);
             }
-            const totalCells = displayStartOffset + daysInMonth; const remainingCells = (totalCells % 7 === 0) ? 0 : 7 - (totalCells % 7);
+
+            const totalCells = displayStartOffset + daysInMonth;
+            const remainingCells = (totalCells % 7 === 0) ? 0 : 7 - (totalCells % 7);
             for (let i = 1; i <= remainingCells; i++) {
-                const dayEl = this.utils.createElement('div', ['min-h-[90px]', 'p-1', 'rounded-md', 'bg-gray-50', 'border', 'border-gray-200', 'flex', 'flex-col', 'items-start', 'text-xs']);
-                dayEl.setAttribute('role', 'gridcell'); dayEl.setAttribute('aria-label', `${i} (próximo mês)`);
+                const dayEl = this.utils.createElement('div', ['day-cell', 'min-h-[90px]', 'md:min-h-[100px]', 'p-1', 'rounded-md', 'bg-gray-50', 'border', 'border-gray-200', 'flex', 'flex-col', 'items-start', 'text-xs', 'opacity-75']);
+                dayEl.setAttribute('role', 'gridcell');
+                dayEl.setAttribute('aria-label', `${i} (próximo mês)`);
                 dayEl.appendChild(this.utils.createElement('span', ['font-semibold', 'text-gray-400', 'self-end', 'p-1', 'leading-none'], {}, i.toString()));
                 fragment.appendChild(dayEl);
             }
             calendarDaysContainer.appendChild(fragment);
         },
+
         setupEventListeners: function() {
             const prevMonthBtn = document.getElementById('prev-month');
             const nextMonthBtn = document.getElementById('next-month');
@@ -478,47 +660,165 @@
                     this.renderCalendar();
                 });
             } else { console.error("Botão #prev-month não encontrado.");}
+            
             if (nextMonthBtn) {
                 nextMonthBtn.addEventListener('click', () => {
                     this.state.currentDisplayDate.setMonth(this.state.currentDisplayDate.getMonth() + 1);
                     this.renderCalendar();
                 });
             } else { console.error("Botão #next-month não encontrado.");}
+            
             if (downloadBirthdaysBtn) {
                 downloadBirthdaysBtn.addEventListener('click', () => {
                     this.downloadBirthdaysSummary();
                 });
             } else { console.error("Botão #download-birthdays não encontrado."); }
         },
+
         init: function() {
-            this.state.currentDisplayDate = new Date(this.config.today.getFullYear(), this.config.today.getMonth(), 1);
+            console.log("Painel da Igreja inicializando...");
+            this.state.currentDisplayDate = new Date(this.config.panelReferenceDate.getFullYear(), this.config.panelReferenceDate.getMonth(), 1);
             
-            const todayFormatted = this.utils.formatDate(this.config.today, "AAAA-MM-DD");
-            const tomorrowFormatted = this.utils.formatDate(new Date(new Date(this.config.today).setDate(this.config.today.getDate() + 1)), "AAAA-MM-DD");
-            const threeDaysLaterFormatted = this.utils.formatDate(new Date(new Date(this.config.today).setDate(this.config.today.getDate() + 3)), "AAAA-MM-DD");
-            const nextWeekFormatted = this.utils.formatDate(new Date(new Date(this.config.today).setDate(this.config.today.getDate() + 7)), "AAAA-MM-DD");
+            let processedEvents = [...this.data.churchEventsBase]; 
+            const refDate = this.config.panelReferenceDate;
 
-            // Adiciona aniversariantes dinâmicos à lista existente
             this.data.birthdays.push(
-                { name: "Ana Clara (Amanhã)", date: tomorrowFormatted },
-                { name: "Carlos Eduardo (Em 3 dias)", date: threeDaysLaterFormatted }
+                 { name: "Ana Clara (Amanhã Teste)", date: this.utils.formatDate(new Date(new Date(refDate).setDate(refDate.getDate() + 1)), "AAAA-MM-DD") },
+                 { name: "Carlos Eduardo (Em 3 Dias Teste)", date: this.utils.formatDate(new Date(new Date(refDate).setDate(refDate.getDate() + 3)), "AAAA-MM-DD") }
             );
-            // Adiciona eventos dinâmicos à lista existente
-            this.data.churchEvents.push(
-                { date: todayFormatted, time: "19:30", type: "culto", title: "Culto de Hoje", direcao: "Irmão José", pregador: "Irmã Lúcia" },
-                { date: nextWeekFormatted, time: "19:00", type: "culto", title: "Culto Próxima Semana", direcao: "Equipe Louvor", pregador: "Pr. Convidado Especial" }
-            );
+            
+            const startRecurrenceDate = new Date(refDate.getFullYear(), refDate.getMonth(), 1); 
+            const endRecurrenceDate = new Date(refDate.getFullYear(), refDate.getMonth() + 3, 0); 
 
-            if (!document.getElementById('cleaning-schedule') || !document.getElementById('birthdays') || !document.getElementById('calendar-days') || !document.getElementById('next-event-details') || !document.getElementById('worship-schedule-details')) {
-                console.error("Um ou mais containers de seção não foram encontrados.");
+            this.data.recurringEventRules.forEach(rule => {
+                if (rule.beforeEventType) return; 
+
+                for (let d = new Date(startRecurrenceDate); d <= endRecurrenceDate; d.setDate(d.getDate() + 1)) {
+                    if (d.getDay() === rule.dayOfWeek) {
+                        let shouldAddEvent = true;
+                        if (rule.occurrence) { 
+                            shouldAddEvent = false;
+                            const dayInMonth = d.getDate();
+                            const weekOfMonth = Math.ceil(dayInMonth / 7);
+                            const occurrenceMap = { "first": 1, "second": 2, "third": 3, "fourth": 4 };
+                            
+                            if (rule.occurrence.includes("last")) {
+                                let testLast = new Date(d);
+                                testLast.setDate(testLast.getDate() + 7);
+                                if(testLast.getMonth() !== d.getMonth() && d.getDay() === rule.dayOfWeek) shouldAddEvent = true;
+                            }
+                            for (const occ of rule.occurrence) {
+                                if (occurrenceMap[occ] && weekOfMonth === occurrenceMap[occ]) {
+                                    shouldAddEvent = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (shouldAddEvent) {
+                            const newEvent = {
+                                date: this.utils.formatDate(d, "AAAA-MM-DD"),
+                                time: rule.time,
+                                type: rule.type,
+                                title: rule.title,
+                                // Direção e Pregador removidos da geração automática aqui
+                                obs: rule.obs || null,
+                                local: rule.local || null,
+                            };
+                            processedEvents.push(newEvent);
+                        }
+                    }
+                }
+            });
+
+            // Gerar cultos de domingo específicos (Santa Ceia, Missão, Ação Social)
+            for (let d = new Date(startRecurrenceDate); d <= endRecurrenceDate; d.setDate(d.getDate() + 1)) {
+                if (d.getDay() === 0) { // Domingo
+                    const formattedDate = this.utils.formatDate(d, "AAAA-MM-DD");
+                    const firstSunday = this.utils.getNthDayOfMonth(d.getFullYear(), d.getMonth(), 0, 1);
+                    const secondSunday = this.utils.getNthDayOfMonth(d.getFullYear(), d.getMonth(), 0, 2);
+                    const lastSunday = this.utils.getLastDayOfWeekInMonth(d.getFullYear(), d.getMonth(), 0);
+
+                    let existingEventOnThisSunday = processedEvents.find(e => e.date === formattedDate && (e.type === 'culto' || e.type === 'especial'));
+                    
+                    if (firstSunday && d.getTime() === firstSunday.getTime() && (!existingEventOnThisSunday || existingEventOnThisSunday.title !== "Culto de Santa Ceia")) {
+                        processedEvents = processedEvents.filter(e => !(e.date === formattedDate && e.title === "Culto de Domingo")); 
+                        processedEvents.push({ date: formattedDate, time: "19:00", type: "especial", title: "Culto de Santa Ceia" }); // Direção e Pregador removidos
+                    } else if (secondSunday && d.getTime() === secondSunday.getTime() && (!existingEventOnThisSunday || existingEventOnThisSunday.title !== "Culto de Missão")) {
+                        processedEvents = processedEvents.filter(e => !(e.date === formattedDate && e.title === "Culto de Domingo"));
+                        processedEvents.push({ date: formattedDate, time: "19:00", type: "culto", title: "Culto de Missão" }); // Direção e Pregador removidos
+                    } else if (lastSunday && d.getTime() === lastSunday.getTime() && (!existingEventOnThisSunday || existingEventOnThisSunday.title !== "Culto de Ação Social")) {
+                        processedEvents = processedEvents.filter(e => !(e.date === formattedDate && e.title === "Culto de Domingo"));
+                        processedEvents.push({ date: formattedDate, time: "19:00", type: "culto", title: "Culto de Ação Social" }); // Direção e Pregador removidos
+                    } else if (!existingEventOnThisSunday) { 
+                         const ruleDomingo = this.data.recurringEventRules.find(r => r.title === "Culto de Domingo" && r.dayOfWeek === 0); 
+                         if (ruleDomingo) { 
+                            processedEvents.push({
+                                date: formattedDate, time: ruleDomingo.time, type: ruleDomingo.type, title: ruleDomingo.title,
+                                // Direção e Pregador removidos daqui também
+                            });
+                         }
+                    }
+                }
             }
-            this.renderNextEvent();
-            this.renderCleaningSchedule();
-            this.renderWorshipSchedule(); 
-            this.renderBirthdays();
-            this.renderCalendar();
-            this.setupEventListeners();
-            console.log("Painel da Igreja inicializado.");
+
+
+            const preEventRules = this.data.recurringEventRules.filter(r => r.beforeEventType);
+            if (preEventRules.length > 0) {
+                const eventsToHavePreEvent = [...processedEvents]; 
+                preEventRules.forEach(preRule => {
+                    const targetEventTypes = Array.isArray(preRule.beforeEventType) ? preRule.beforeEventType : [preRule.beforeEventType];
+                    eventsToHavePreEvent.forEach(mainEvent => {
+                        if (targetEventTypes.includes(mainEvent.type)) {
+                            processedEvents.push({
+                                date: mainEvent.date,
+                                time: this.utils.addMinutesToTime(mainEvent.time, preRule.timeOffsetMinutes),
+                                type: preRule.type,
+                                title: preRule.title,
+                                durationMinutes: preRule.durationMinutes
+                            });
+                        }
+                    });
+                });
+            }
+
+            const uniqueEvents = new Map();
+            processedEvents.forEach(event => {
+                const key = `${event.date}-${event.time}-${event.title}`; 
+                uniqueEvents.set(key, event); 
+            });
+            this.state.allProcessedEvents = Array.from(uniqueEvents.values())
+                                               .sort((a,b) => {
+                                                    const dateA = this.utils.parseDate(`${a.date}T${a.time || '00:00'}`);
+                                                    const dateB = this.utils.parseDate(`${b.date}T${b.time || '00:00'}`);
+                                                    if (!dateA && !dateB) return 0;
+                                                    if (!dateA) return 1;
+                                                    if (!dateB) return -1;
+                                                    return dateA - dateB;
+                                                });
+
+
+            const requiredContainers = ['next-event-details', 'cleaning-schedule', 'worship-schedule-details', 'birthdays', 'calendar-days', 'calendar-month-year'];
+            let allContainersFound = true;
+            requiredContainers.forEach(id => {
+                if (!document.getElementById(id)) {
+                    console.error(`Elemento container #${id} não encontrado.`);
+                    allContainersFound = false;
+                }
+            });
+
+            if (allContainersFound) {
+                this.renderNextEvent();
+                this.renderCleaningSchedule();
+                this.renderWorshipSchedule(); 
+                this.renderBirthdays();
+                this.renderCalendar();
+                this.setupEventListeners();
+                console.log("Painel da Igreja renderizado com sucesso.");
+            } else {
+                console.error("Renderização abortada devido à falta de containers HTML.");
+                document.body.innerHTML = '<p class="text-center text-red-500 font-bold mt-10">Erro crítico: A estrutura da página está incompleta. Por favor, contate o suporte.</p>';
+            }
         }
     };
 
