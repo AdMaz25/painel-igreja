@@ -13,13 +13,13 @@
         .calendar-event {
             line-height: 1.3;
         }
-        .bg-event-culto { background-color: #ef4444; }
-        .bg-event-ebd { background-color: #6366f1; }
-        .bg-event-oracao { background-color: #14b8a6; }
-        .bg-event-jovens { background-color: #f97316; }
-        .bg-event-familia { background-color: #a855f7; }
-        .bg-event-doutrina { background-color: #0ea5e9; }
-        .text-event-aniversario { color: #ec4899; }
+        .bg-event-culto { background-color: #ef4444; } /* red-500 */
+        .bg-event-ebd { background-color: #6366f1; } /* indigo-500 */
+        .bg-event-oracao { background-color: #14b8a6; } /* teal-500 */
+        .bg-event-jovens { background-color: #f97316; } /* orange-500 */
+        .bg-event-familia { background-color: #a855f7; } /* purple-500 */
+        .bg-event-doutrina { background-color: #0ea5e9; } /* sky-500 */
+        .text-event-aniversario { color: #ec4899; } /* pink-500 */
     </style>
 </head>
 <body class="bg-gray-100 p-4 md:p-6">
@@ -126,7 +126,7 @@
     <script>
     const PainelIgrejaApp = {
         config: {
-            today: new Date(),
+            today: new Date(), // Usa a data atual do sistema
             diasDaSemana: ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"],
             mesesDoAno: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
             startOfWeekMonday: true,
@@ -144,27 +144,26 @@
                 { dayOfWeek: 6, responsible: "João Paulo e Pedro Chagas" },
                 { dayOfWeek: 0, responsible: "Hélida, Emanuel, Wendel" }
             ],
-            // Static part of birthdays and churchEvents
-            birthdays: [
+            birthdays: [ // Dados estáticos de aniversariantes
                 { name: "Lucas Mendes", date: "2025-05-28" },
                 { name: "Fernanda Costa", date: "2025-06-01" },
                 { name: "Ricardo Alves", date: "2025-05-30"},
                 { name: "Beatriz Almeida", date: "2025-06-05" },
                 { name: "João Silva", date: "2025-07-15" },
             ],
-            churchEvents: [
+            churchEvents: [ // Dados estáticos de eventos
                 { date: "2025-05-04", time: "19:00", type: "culto", title: "Culto de Domingo", direcao: "Pr. João", pregador: "Missionário Pedro" },
                 { date: "2025-05-11", time: "19:00", type: "culto", title: "Culto de Domingo (Dia Mães)", direcao: "Diácono Carlos", pregador: "Pra. Maria" },
                 { date: "2025-05-18", time: "19:00", type: "culto", title: "Culto de Domingo", direcao: "Presb. Antonio", pregador: "Pr. Visitante" },
                 { date: "2025-05-25", time: "19:00", type: "culto", title: "Culto de Domingo", direcao: "Jovem Líder", pregador: "Pr. João" },
                 { date: "2025-06-01", time: "19:00", type: "culto", title: "Culto de Domingo (Ceia)", direcao: "Pr. Presidente", pregador: "Pr. Presidente" },
                 { date: "2025-06-08", time: "19:00", type: "culto", title: "Culto de Domingo", direcao: "Diaconisa Ana", pregador: "Ev. Marcos" },
+                { date: "2025-05-31", time: "19:00", type: "jovens", title: "Culto Jovem", preacher: "Pr. Convidado" }, // Exemplo para 31/05
                 { date: "2025-05-06", time: "19:00", type: "doutrina", title: "Culto de Doutrina" },
                 { date: "2025-05-13", time: "19:00", type: "doutrina", title: "Culto de Doutrina" },
                 { date: "2025-05-07", time: "19:00", type: "oracao", title: "Círculo de Oração" },
                 { date: "2025-05-14", time: "19:00", type: "oracao", title: "Círculo de Oração" },
                 { date: "2025-05-03", time: "19:00", type: "jovens", title: "Culto Jovem" },
-                { date: "2025-05-31", time: "19:00", type: "jovens", title: "Culto Jovem", preacher: "Pr. Convidado" },
                 { date: "2025-05-04", time: "09:00", type: "ebd", title: "EBD" },
             ]
         },
@@ -200,17 +199,36 @@
             const detailsContainer = document.getElementById('next-event-details');
             if (!detailsContainer) { console.error("Elemento #next-event-details não encontrado."); return; }
             detailsContainer.innerHTML = '';
+            
             const now = new Date(this.config.today);
-            const upcomingEvents = this.data.churchEvents
-                .map(event => ({ ...event, dateTime: new Date(`${event.date}T${event.time || '00:00'}:00`) }))
-                .filter(event => event.dateTime >= now && (event.type === 'culto' || event.type === 'jovens' || event.type === 'familia' || event.type === 'doutrina'))
-                .sort((a, b) => a.dateTime - b.dateTime);
+            const todayFormatted = this.utils.formatDate(this.config.today, "AAAA-MM-DD");
 
-            if (upcomingEvents.length > 0) {
-                const nextEvent = upcomingEvents[0];
+            // Prioridade para "Culto de Hoje"
+            let nextEvent = this.data.churchEvents
+                .map(event => ({ ...event, dateTime: new Date(`${event.date}T${event.time || '00:00'}:00`) }))
+                .find(event => 
+                    event.date === todayFormatted && 
+                    event.title === "Culto de Hoje" && 
+                    event.dateTime >= now
+                );
+
+            if (!nextEvent) { // Se não houver "Culto de Hoje" ou já passou, busca o próximo evento principal
+                const upcomingPrincipalEvents = this.data.churchEvents
+                    .map(event => ({ ...event, dateTime: new Date(`${event.date}T${event.time || '00:00'}:00`) }))
+                    .filter(event => event.dateTime >= now && 
+                                    (event.type === 'culto' || event.type === 'jovens' || event.type === 'familia' || event.type === 'doutrina') &&
+                                    !(event.date === todayFormatted && event.title === "Culto de Hoje") // Evita duplicar se já foi considerado
+                    )
+                    .sort((a, b) => a.dateTime - b.dateTime);
+                if (upcomingPrincipalEvents.length > 0) {
+                    nextEvent = upcomingPrincipalEvents[0];
+                }
+            }
+            
+            if (nextEvent) {
                 const dayName = this.config.diasDaSemana[nextEvent.dateTime.getDay()];
                 const fragment = document.createDocumentFragment();
-                let p = this.utils.createElement('p', ['text-lg', 'font-semibold', 'text-blue-600'], {}, nextEvent.title);
+                let p = this.utils.createElement('p', ['text-lg', 'font-semibold', `text-${nextEvent.type === 'jovens' ? 'orange' : 'blue'}-600`], {}, nextEvent.title); // Cor dinâmica simples
                 fragment.appendChild(p);
                 p = this.utils.createElement('p', ['text-sm', 'text-gray-600', 'mt-1']);
                 p.innerHTML = `<strong>Data:</strong> ${dayName}, ${this.utils.formatDate(nextEvent.dateTime)}`;
@@ -218,10 +236,25 @@
                 p = this.utils.createElement('p', ['text-sm', 'text-gray-600']);
                 p.innerHTML = `<strong>Horário:</strong> ${nextEvent.time}`;
                 fragment.appendChild(p);
-                if(nextEvent.preacher && nextEvent.type !== 'culto') { 
-                    p = this.utils.createElement('p', ['text-sm', 'text-gray-600', 'mt-1']);
-                    p.innerHTML = `<strong>Preletor:</strong> ${nextEvent.preacher}`;
-                    fragment.appendChild(p);
+
+                // Mostrar pregador/direção se aplicável e não for o "Culto de Hoje" (que tem detalhes na sua própria seção)
+                if (nextEvent.title !== "Culto de Hoje") {
+                    if (nextEvent.preacher) {
+                        p = this.utils.createElement('p', ['text-sm', 'text-gray-600', 'mt-1']);
+                        p.innerHTML = `<strong>Preletor:</strong> ${nextEvent.preacher}`;
+                        fragment.appendChild(p);
+                    }
+                } else { // Para o "Culto de Hoje", mostrar direção e pregador aqui também se for o próximo
+                     if (nextEvent.direcao) {
+                        p = this.utils.createElement('p', ['text-sm', 'text-gray-600', 'mt-1']);
+                        p.innerHTML = `<strong>Direção:</strong> ${nextEvent.direcao}`;
+                        fragment.appendChild(p);
+                    }
+                    if (nextEvent.pregador) {
+                        p = this.utils.createElement('p', ['text-sm', 'text-gray-600', 'mt-1']);
+                        p.innerHTML = `<strong>Pregador:</strong> ${nextEvent.pregador}`;
+                        fragment.appendChild(p);
+                    }
                 }
                 detailsContainer.appendChild(fragment);
             } else {
@@ -268,22 +301,41 @@
 
             if (upcomingServices.length > 0) {
                 const fragment = document.createDocumentFragment();
+                const todayDateString = this.config.today.toDateString();
+
                 upcomingServices.forEach(service => {
+                    const isTodayService = service.dateTime.toDateString() === todayDateString;
                     const dayName = this.config.diasDaSemana[service.dateTime.getDay()];
                     const formattedDate = this.utils.formatDate(service.dateTime);
-
-                    const serviceDiv = this.utils.createElement('div', ['p-3', 'rounded-md', 'border', 'border-gray-200', 'bg-gray-50']);
                     
-                    let titleP = this.utils.createElement('p', ['font-semibold', 'text-purple-700'], {}, `${service.title} - ${dayName}, ${formattedDate} às ${service.time}`);
+                    const serviceClasses = ['p-3', 'rounded-md', 'border', 'border-gray-200'];
+                    let titleClasses = ['font-semibold'];
+                    let textClasses = [];
+
+                    if (isTodayService) {
+                        serviceClasses.push(`bg-event-${service.type}`, 'text-white');
+                        titleClasses.push('text-white'); // Garante que o título também seja branco
+                        textClasses.push('text-gray-100'); // Para o texto dos detalhes
+                    } else {
+                        serviceClasses.push('bg-gray-50');
+                        titleClasses.push('text-purple-700');
+                        textClasses.push('text-gray-700');
+                    }
+
+                    const serviceDiv = this.utils.createElement('div', serviceClasses);
+                    
+                    let titleText = `${service.title} - ${dayName}, ${formattedDate} às ${service.time}`;
+                    if (isTodayService) titleText += " (Hoje)";
+                    let titleP = this.utils.createElement('p', titleClasses, {}, titleText);
                     serviceDiv.appendChild(titleP);
 
                     if (service.direcao) {
-                        let direcaoP = this.utils.createElement('p', ['mt-1']);
+                        let direcaoP = this.utils.createElement('p', ['mt-1', ...textClasses]);
                         direcaoP.innerHTML = `<strong>Direção:</strong> ${service.direcao}`;
                         serviceDiv.appendChild(direcaoP);
                     }
                     if (service.pregador) {
-                        let pregadorP = this.utils.createElement('p', ['mt-1']);
+                        let pregadorP = this.utils.createElement('p', ['mt-1', ...textClasses]);
                         pregadorP.innerHTML = `<strong>Pregador:</strong> ${service.pregador}`;
                         serviceDiv.appendChild(pregadorP);
                     }
@@ -338,7 +390,7 @@
                 .sort((a, b) => a.parsedDate - b.parsedDate);
 
             if (weekBirthdays.length === 0) {
-                console.log("Nenhum aniversariante na semana para baixar.");
+                console.log("Nenhum aniversariante na semana para baixar."); // Idealmente, use um modal/toast
                 return;
             }
 
@@ -441,14 +493,20 @@
         init: function() {
             this.state.currentDisplayDate = new Date(this.config.today.getFullYear(), this.config.today.getMonth(), 1);
             
-            // Initialize dynamic dates for birthdays and churchEvents here
+            const todayFormatted = this.utils.formatDate(this.config.today, "AAAA-MM-DD");
+            const tomorrowFormatted = this.utils.formatDate(new Date(new Date(this.config.today).setDate(this.config.today.getDate() + 1)), "AAAA-MM-DD");
+            const threeDaysLaterFormatted = this.utils.formatDate(new Date(new Date(this.config.today).setDate(this.config.today.getDate() + 3)), "AAAA-MM-DD");
+            const nextWeekFormatted = this.utils.formatDate(new Date(new Date(this.config.today).setDate(this.config.today.getDate() + 7)), "AAAA-MM-DD");
+
+            // Adiciona aniversariantes dinâmicos à lista existente
             this.data.birthdays.push(
-                { name: "Ana Clara", date: this.utils.formatDate(new Date(new Date().setDate(new Date().getDate() + 1)), "AAAA-MM-DD") },
-                { name: "Carlos Eduardo", date: this.utils.formatDate(new Date(new Date().setDate(new Date().getDate() + 3)), "AAAA-MM-DD") }
+                { name: "Ana Clara (Amanhã)", date: tomorrowFormatted },
+                { name: "Carlos Eduardo (Em 3 dias)", date: threeDaysLaterFormatted }
             );
+            // Adiciona eventos dinâmicos à lista existente
             this.data.churchEvents.push(
-                { date: this.utils.formatDate(new Date(), "AAAA-MM-DD"), time: "19:30", type: "culto", title: "Culto de Hoje", direcao: "Irmão José", pregador: "Irmã Lúcia" },
-                { date: this.utils.formatDate(new Date(new Date().setDate(new Date().getDate() + 7))), time: "19:00", type: "culto", title: "Culto Próxima Semana", direcao: "Equipe Louvor", pregador: "Pr. Convidado Especial" }
+                { date: todayFormatted, time: "19:30", type: "culto", title: "Culto de Hoje", direcao: "Irmão José", pregador: "Irmã Lúcia" },
+                { date: nextWeekFormatted, time: "19:00", type: "culto", title: "Culto Próxima Semana", direcao: "Equipe Louvor", pregador: "Pr. Convidado Especial" }
             );
 
             if (!document.getElementById('cleaning-schedule') || !document.getElementById('birthdays') || !document.getElementById('calendar-days') || !document.getElementById('next-event-details') || !document.getElementById('worship-schedule-details')) {
