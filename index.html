@@ -23,7 +23,7 @@
             line-height: 1.3;
         }
         .calendar-event-text-mobile {
-            font-size: 0.75rem; /* Aumentado para melhor leitura no mobile */
+            font-size: 0.75rem; 
             line-height: 1.2;
             padding: 2px 4px;
             border-radius: 0.25rem;
@@ -112,10 +112,10 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="hidden md:grid grid-cols-7 gap-1 text-xs font-semibold text-gray-500 text-center mb-1"> {/* Oculto no mobile */}
+                        <div id="calendar-header-days" class="hidden md:grid grid-cols-7 gap-1 text-xs font-semibold text-gray-500 text-center mb-1"> 
                             <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
                         </div>
-                        <div id="calendar-days" class="grid grid-cols-1 md:grid-cols-7 gap-2 md:gap-1" role="grid" aria-live="polite"> {/* grid-cols-1 para mobile */}
+                        <div id="calendar-days" class="grid grid-cols-1 md:grid-cols-7 gap-2 md:gap-1" role="grid" aria-live="polite"> 
                             <div class="loading-placeholder min-h-[70px] sm:min-h-[90px] md:min-h-[100px]"></div> 
                             <div class="loading-placeholder min-h-[70px] sm:min-h-[90px] md:min-h-[100px]"></div> 
                             <div class="loading-placeholder min-h-[70px] sm:min-h-[90px] md:min-h-[100px]"></div> 
@@ -203,6 +203,7 @@
         config: {
             panelReferenceDate: new Date(), 
             diasDaSemana: ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"],
+            diasDaSemanaAbrev: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"], // Adicionado para mobile
             mesesDoAno: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
             startOfWeekMonday: true, 
             principalEventTypes: ['culto', 'jovens', 'familia', 'doutrina', 'especial'],
@@ -229,9 +230,11 @@
             maxEventsToShowInCalendarCellMobile: 3, 
         },
         state: {
-            currentDisplayDate: null, 
+            currentDisplayDate: null, // Para modo mensal, é o primeiro dia do mês. Para semanal, é o primeiro dia da semana.
             allProcessedEvents: [], 
-            isMobileView: window.innerWidth < 768, // md breakpoint do Tailwind
+            isMobileView: window.innerWidth < 768, 
+            currentCalendarViewMode: 'month', // 'month' ou 'week'
+            currentWeekStartDate: null, // Data de início da semana para visualização semanal
         },
         data: {
             cleaningScheduleDefinition: [
@@ -334,6 +337,12 @@
                     date.setDate(date.getDate() - 1);
                 }
                 return date;
+            },
+            getStartOfWeek: function(date, startOnMonday) {
+                const d = new Date(date);
+                const day = d.getDay();
+                const diff = d.getDate() - day + (startOnMonday ? (day === 0 ? -6 : 1) : 0);
+                return new Date(d.setDate(diff));
             }
         },
 
@@ -418,7 +427,7 @@
         },
 
         copyToClipboard: function(text, buttonElement, successIcon = '✅', originalIcon = '📋') {
-            const originalAriaLabel = buttonElement.dataset.originalLabel || buttonElement.getAttribute('aria-label'); // Salva o aria-label original
+            const originalAriaLabel = buttonElement.dataset.originalLabel || buttonElement.getAttribute('aria-label'); 
             navigator.clipboard.writeText(text)
                 .then(() => {
                     if (buttonElement) {
@@ -650,94 +659,104 @@
         renderCalendar: function() {
             const calendarDaysContainer = document.getElementById('calendar-days');
             const calendarMonthYearEl = document.getElementById('calendar-month-year');
-            if (!calendarDaysContainer || !calendarMonthYearEl) { console.error("Elementos do calendário não encontrados."); return; }
+            const calendarHeaderDaysEl = document.getElementById('calendar-header-days');
+            const prevButton = document.getElementById('prev-month');
+            const nextButton = document.getElementById('next-month');
+
+            if (!calendarDaysContainer || !calendarMonthYearEl || !calendarHeaderDaysEl || !prevButton || !nextButton) {
+                console.error("Um ou mais elementos do calendário não foram encontrados.");
+                return;
+            }
             
-            this.state.isMobileView = window.innerWidth < 768; // Atualiza a view aqui
+            this.state.isMobileView = window.innerWidth < 768; // md breakpoint
             const isMobile = this.state.isMobileView;
+            
+            // Define o modo de visualização e a data de referência para o modo
+            if (isMobile) {
+                this.state.currentCalendarViewMode = 'week';
+                if (!this.state.currentWeekStartDate) { // Inicializa se não estiver definida
+                    this.state.currentWeekStartDate = this.utils.getStartOfWeek(new Date(this.config.panelReferenceDate), this.config.startOfWeekMonday);
+                }
+            } else {
+                this.state.currentCalendarViewMode = 'month';
+                // currentDisplayDate já é gerenciado para o mês
+            }
 
             calendarDaysContainer.innerHTML = ''; 
             const fragment = document.createDocumentFragment();
             
-            calendarMonthYearEl.textContent = `${this.config.mesesDoAno[this.state.currentDisplayDate.getMonth()]} ${this.state.currentDisplayDate.getFullYear()}`;
+            // Atualiza o título e os botões de navegação
+            if (isMobile) {
+                calendarHeaderDaysEl.classList.add('hidden'); // Esconde Dom-Sab no mobile
+                calendarDaysContainer.classList.remove('md:grid-cols-7', 'md:gap-1');
+                calendarDaysContainer.classList.add('grid-cols-1', 'gap-2');
+
+                const weekStart = new Date(this.state.currentWeekStartDate);
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+                
+                let weekLabel = `Semana de ${this.utils.formatDate(weekStart)} a ${this.utils.formatDate(weekEnd)}`;
+                
+                // Verifica se é a semana atual
+                const today = new Date(this.config.panelReferenceDate);
+                today.setHours(0,0,0,0);
+                if (today >= weekStart && today <= weekEnd) {
+                    weekLabel += " (Semana Atual)";
+                }
+                calendarMonthYearEl.textContent = weekLabel;
+                prevButton.setAttribute('aria-label', 'Semana anterior');
+                nextButton.setAttribute('aria-label', 'Próxima semana');
+
+            } else { // Desktop (Month View)
+                calendarHeaderDaysEl.classList.remove('hidden');
+                calendarHeaderDaysEl.classList.add('md:grid');
+                calendarDaysContainer.classList.remove('grid-cols-1', 'gap-2');
+                calendarDaysContainer.classList.add('md:grid-cols-7', 'md:gap-1');
+
+                calendarMonthYearEl.textContent = `${this.config.mesesDoAno[this.state.currentDisplayDate.getMonth()]} ${this.state.currentDisplayDate.getFullYear()}`;
+                prevButton.setAttribute('aria-label', 'Mês anterior');
+                nextButton.setAttribute('aria-label', 'Próximo mês');
+            }
             calendarDaysContainer.setAttribute('aria-label', `Calendário de ${calendarMonthYearEl.textContent}`);
             
-            const year = this.state.currentDisplayDate.getFullYear(); 
-            const month = this.state.currentDisplayDate.getMonth();
-            
-            const firstDayOfMonth = new Date(year, month, 1);
-            const lastDayOfMonth = new Date(year, month + 1, 0);
-            const daysInMonth = lastDayOfMonth.getDate();
-            
-            let startDayOfWeekIndex = firstDayOfMonth.getDay(); 
-            let displayStartOffset = startDayOfWeekIndex; 
+            // --- Lógica de Renderização dos Dias ---
+            if (isMobile) { // Renderização da Semana (Mobile)
+                const currentWeekStart = new Date(this.state.currentWeekStartDate);
+                for (let i = 0; i < 7; i++) {
+                    const currentDate = new Date(currentWeekStart);
+                    currentDate.setDate(currentWeekStart.getDate() + i);
+                    const day = currentDate.getDate();
+                    const month = currentDate.getMonth();
+                    const year = currentDate.getFullYear();
 
-            const todayRef = new Date(this.config.panelReferenceDate); todayRef.setHours(0,0,0,0);
-            const prevMonthLastDay = new Date(year, month, 0).getDate();
+                    const dayCellBaseClasses = ['day-cell', 'p-3', 'rounded-lg', 'border', 'flex', 'flex-col', 'transition-colors', 'relative', 'bg-white', 'border-gray-300', 'space-y-1.5'];
+                    let ariaLabelDay = `${this.config.diasDaSemana[currentDate.getDay()]}, ${day} de ${this.config.mesesDoAno[month]}`;
+                    const isToday = currentDate.toDateString() === this.config.panelReferenceDate.toDateString();
+                    if (isToday) { 
+                        dayCellBaseClasses.push('bg-blue-50', 'border-blue-400', 'shadow'); 
+                    }
+                    
+                    const dayEl = this.utils.createElement('div', dayCellBaseClasses); 
+                    dayEl.setAttribute('role', 'listitem');
+                    dayEl.setAttribute('tabindex', '0'); 
 
-            // Dias do mês anterior (apenas para visualização desktop/grid)
-            if (!isMobile) {
-                for (let i = 0; i < displayStartOffset; i++) {
-                    const day = prevMonthLastDay - displayStartOffset + 1 + i;
-                    const dayEl = this.utils.createElement('div', ['day-cell', 'min-h-[70px]', 'sm:min-h-[90px]', 'md:min-h-[100px]', 'p-1', 'rounded-md', 'bg-gray-50', 'border', 'border-gray-200', 'flex', 'flex-col', 'items-start', 'text-xs', 'opacity-75']);
-                    dayEl.setAttribute('role', 'gridcell');
-                    dayEl.setAttribute('aria-label', `${day} (mês anterior)`);
-                    dayEl.appendChild(this.utils.createElement('span', ['font-semibold', 'text-gray-400', 'self-end', 'p-1', 'leading-none'], {}, day.toString()));
-                    fragment.appendChild(dayEl);
-                }
-            }
-
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                const currentDate = new Date(year, month, day);
-                const dayCellBaseClasses = ['day-cell', 'p-2', 'rounded-md', 'border', 'flex', 'transition-colors', 'relative'];
-                let dayCellLayoutClasses = isMobile ? ['flex-col', 'items-start', 'space-y-1'] : ['min-h-[70px]', 'sm:min-h-[90px]', 'md:min-h-[100px]', 'flex-col', 'items-start'];
-
-                const dayClasses = [...dayCellBaseClasses, ...dayCellLayoutClasses];
-                
-                let ariaLabelDay = `${day} de ${this.config.mesesDoAno[month]}, ${this.config.diasDaSemana[currentDate.getDay()]}`;
-                
-                const isToday = currentDate.toDateString() === todayRef.toDateString();
-                if (isToday) { 
-                    dayClasses.push(isMobile ? 'bg-blue-50 border-blue-400' : 'bg-blue-100 border-blue-300'); 
-                } else { 
-                    dayClasses.push(isMobile ? 'bg-white border-gray-300' : 'bg-white border-gray-200'); 
-                }
-                
-                const dayEl = this.utils.createElement('div', dayClasses); 
-                dayEl.setAttribute('role', 'gridcell'); // Ou 'listitem' no mobile, se o container for 'list'
-                dayEl.setAttribute('tabindex', '0'); 
-
-                // Cabeçalho do dia (Número e nome do dia no mobile)
-                const dayHeaderContainer = this.utils.createElement('div', ['flex', 'justify-between', 'w-full', 'items-center', isMobile ? 'mb-1' : '']);
-                const dayNumberClasses = ['font-semibold', 'p-0.5', 'leading-none', 'w-6', 'h-6', 'flex', 'items-center', 'justify-center', 'rounded-full'];
-                if(isToday) {
-                    dayNumberClasses.push('bg-blue-500', 'text-white');
-                } else {
-                    dayNumberClasses.push(isMobile ? 'text-gray-700' : 'text-gray-700');
-                }
-
-                if (isMobile) {
-                    dayHeaderContainer.appendChild(this.utils.createElement('span', ['text-sm', 'font-medium', isToday ? 'text-blue-700' : 'text-gray-600'], {}, this.config.diasDaSemana[currentDate.getDay()]));
+                    const dayHeaderContainer = this.utils.createElement('div', ['flex', 'justify-between', 'w-full', 'items-center', 'mb-1']);
+                    const dayNumberClasses = ['font-semibold', 'p-0.5', 'leading-none', 'w-7', 'h-7', 'flex', 'items-center', 'justify-center', 'rounded-full', 'text-sm'];
+                    if(isToday) {
+                        dayNumberClasses.push('bg-blue-500', 'text-white');
+                    } else {
+                        dayNumberClasses.push('text-gray-700');
+                    }
+                    dayHeaderContainer.appendChild(this.utils.createElement('span', ['text-base', 'font-medium', isToday ? 'text-blue-700' : 'text-gray-700'], {}, this.config.diasDaSemana[currentDate.getDay()]));
                     dayHeaderContainer.appendChild(this.utils.createElement('span', dayNumberClasses, {}, day.toString()));
                     dayEl.appendChild(dayHeaderContainer);
-                } else {
-                     dayEl.appendChild(this.utils.createElement('span', [...dayNumberClasses, 'self-end', 'mb-0.5'], {}, day.toString()));
-                }
 
-
-                const eventsDisplayContainer = this.utils.createElement('div', ['w-full', 'flex-grow', 'overflow-hidden']);
-                if (isMobile) {
-                    eventsDisplayContainer.classList.add('space-y-1');
-                } else {
-                     eventsDisplayContainer.classList.add('mt-0.5', 'flex', 'flex-row', 'flex-wrap', 'items-start', 'gap-0.5'); // Para pontos no desktop
-                }
-                
-                let eventInfosForAria = [];
-                const eventsOnThisDay = this.state.allProcessedEvents.filter(e => e.date === this.utils.formatDate(currentDate, "AAAA-MM-DD"));
-                
-                if (eventsOnThisDay.length > 0) {
-                    if (isMobile) { // Mobile: mostrar texto dos eventos
-                        eventsOnThisDay.forEach(event => {
+                    const eventsDisplayContainer = this.utils.createElement('div', ['w-full', 'space-y-1', 'flex-grow']);
+                    let eventInfosForAria = [];
+                    
+                    this.state.allProcessedEvents
+                        .filter(e => e.date === this.utils.formatDate(currentDate, "AAAA-MM-DD"))
+                        .forEach(event => {
                             const bgColorClass = this.config.eventTypeColors[event.type] || this.config.eventTypeColors.default;
                             let textColorClass = 'text-white';
                             if (event.type === 'informatica' && bgColorClass === 'bg-event-informatica-neon') {
@@ -749,8 +768,74 @@
                                 `${this.utils.formatTime(event.time)} - ${event.title}`
                             );
                             eventsDisplayContainer.appendChild(eventDiv);
+                            eventInfosForAria.push(`${event.title} às ${this.utils.formatTime(event.time)}`);
                         });
-                    } else { // Desktop/Tablet: mostrar pontos
+
+                    this.data.birthdays
+                        .filter(b => {
+                            const bDate = this.utils.parseDate(b.date);
+                            return bDate && bDate.getDate() === day && bDate.getMonth() === month; 
+                        })
+                        .forEach(b => {
+                            const bDayDiv = this.utils.createElement('div', 
+                                ['flex', 'items-center', 'text-xs', 'px-1.5', 'py-1', 'rounded', 'bg-pink-100', 'w-full', 'mt-0.5'],
+                                { title: `Aniversário: ${b.name}` }
+                            );
+                            bDayDiv.innerHTML = `<span class="text-event-aniversario font-bold mr-1.5">🎂</span> <span class="text-pink-700">${b.name}</span>`;
+                            eventsDisplayContainer.appendChild(bDayDiv); 
+                            eventInfosForAria.push(`Aniversário: ${b.name}`);
+                        });
+                    
+                    dayEl.appendChild(eventsDisplayContainer);
+                    if(eventInfosForAria.length > 0) { 
+                        ariaLabelDay += `. Eventos: ${eventInfosForAria.join("; ")}`; 
+                    } else {
+                        ariaLabelDay += ". Nenhum evento ou aniversário.";
+                    }
+                    dayEl.setAttribute('aria-label', ariaLabelDay); 
+                    fragment.appendChild(dayEl);
+                }
+
+            } else { // Renderização Mensal (Desktop)
+                const year = this.state.currentDisplayDate.getFullYear(); 
+                const month = this.state.currentDisplayDate.getMonth();
+                const firstDayOfMonth = new Date(year, month, 1);
+                const lastDayOfMonth = new Date(year, month + 1, 0);
+                const daysInMonth = lastDayOfMonth.getDate();
+                let startDayOfWeekIndex = firstDayOfMonth.getDay(); 
+                let displayStartOffset = startDayOfWeekIndex; 
+                const todayRef = new Date(this.config.panelReferenceDate); todayRef.setHours(0,0,0,0);
+                const prevMonthLastDay = new Date(year, month, 0).getDate();
+
+                for (let i = 0; i < displayStartOffset; i++) {
+                    const day = prevMonthLastDay - displayStartOffset + 1 + i;
+                    const dayEl = this.utils.createElement('div', ['day-cell', 'min-h-[70px]', 'sm:min-h-[90px]', 'md:min-h-[100px]', 'p-1', 'rounded-md', 'bg-gray-50', 'border', 'border-gray-200', 'flex', 'flex-col', 'items-start', 'text-xs', 'opacity-75']);
+                    dayEl.setAttribute('role', 'gridcell');
+                    dayEl.setAttribute('aria-label', `${day} (mês anterior)`);
+                    dayEl.appendChild(this.utils.createElement('span', ['font-semibold', 'text-gray-400', 'self-end', 'p-1', 'leading-none'], {}, day.toString()));
+                    fragment.appendChild(dayEl);
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const currentDate = new Date(year, month, day);
+                    const dayClasses = ['day-cell', 'min-h-[70px]', 'sm:min-h-[90px]', 'md:min-h-[100px]', 'p-1', 'rounded-md', 'border', 'flex', 'flex-col', 'items-start', 'text-xs', 'hover:bg-gray-50', 'transition-colors', 'relative'];
+                    let ariaLabelDay = `${day} de ${this.config.mesesDoAno[month]}, ${this.config.diasDaSemana[currentDate.getDay()]}`;
+                    const isToday = currentDate.toDateString() === todayRef.toDateString();
+                    if (isToday) { dayClasses.push('bg-blue-100', 'border-blue-300'); } else { dayClasses.push('bg-white', 'border-gray-200'); }
+                    
+                    const dayEl = this.utils.createElement('div', dayClasses); 
+                    dayEl.setAttribute('role', 'gridcell');
+                    dayEl.setAttribute('tabindex', '0'); 
+
+                    const dayNumberClasses = ['font-semibold', 'self-end', 'p-0.5', 'leading-none', 'w-6', 'h-6', 'flex', 'items-center', 'justify-center', 'rounded-full', 'mb-0.5'];
+                    if (isToday) { dayNumberClasses.push('bg-blue-500', 'text-white'); } else { dayNumberClasses.push('text-gray-700'); }
+                    dayEl.appendChild(this.utils.createElement('span', dayNumberClasses, {}, day.toString()));
+
+                    const eventsDisplayContainer = this.utils.createElement('div', ['w-full', 'mt-0.5', 'flex', 'flex-row', 'flex-wrap', 'items-start', 'gap-0.5', 'flex-grow', 'overflow-hidden']);
+                    let eventInfosForAria = [];
+                    const eventsOnThisDay = this.state.allProcessedEvents.filter(e => e.date === this.utils.formatDate(currentDate, "AAAA-MM-DD"));
+                    
+                    if (eventsOnThisDay.length > 0) {
                         const maxDots = this.config.maxEventsToShowInCalendarCellMobile;
                         for (let i = 0; i < Math.min(eventsOnThisDay.length, maxDots); i++) {
                             const event = eventsOnThisDay[i];
@@ -766,37 +851,27 @@
                                 this.utils.createElement('span', ['text-gray-500', 'text-[0.6rem]', 'ml-0.5', 'mt-1'], {}, `+${eventsOnThisDay.length - maxDots}`)
                             );
                         }
+                        eventsOnThisDay.forEach(event => eventInfosForAria.push(`${event.title} às ${this.utils.formatTime(event.time)}`));
                     }
-                    eventsOnThisDay.forEach(event => eventInfosForAria.push(`${event.title} às ${this.utils.formatTime(event.time)}`));
+
+                    this.data.birthdays
+                        .filter(b => { const bDate = this.utils.parseDate(b.date); return bDate && bDate.getDate() === day && bDate.getMonth() === month; })
+                        .forEach(b => {
+                            const bDayDiv = this.utils.createElement('div', 
+                                ['flex', 'items-center', 'text-[0.65rem]', 'sm:text-[0.7rem]', 'px-1', 'py-0.5', 'rounded', 'bg-pink-100', 'w-full', 'mt-0.5'],
+                                { title: `Aniversário: ${b.name}` }
+                            );
+                            bDayDiv.innerHTML = `<span class="text-event-aniversario font-bold mr-1.5">🎂</span> <span class="text-pink-700 truncate">${b.name.split(' ')[0]}</span>`;
+                            eventsDisplayContainer.appendChild(bDayDiv); 
+                            eventInfosForAria.push(`Aniversário: ${b.name}`);
+                        });
+                    
+                    dayEl.appendChild(eventsDisplayContainer);
+                    if(eventInfosForAria.length > 0) { ariaLabelDay += `. Eventos: ${eventInfosForAria.join("; ")}`; } else { ariaLabelDay += ". Nenhum evento ou aniversário.";}
+                    dayEl.setAttribute('aria-label', ariaLabelDay); 
+                    fragment.appendChild(dayEl);
                 }
 
-                this.data.birthdays
-                    .filter(b => {
-                        const bDate = this.utils.parseDate(b.date);
-                        return bDate && bDate.getDate() === day && bDate.getMonth() === month; 
-                    })
-                    .forEach(b => {
-                        const bDayDiv = this.utils.createElement('div', 
-                            ['flex', 'items-center', isMobile ? 'text-xs' : 'text-[0.65rem] sm:text-[0.7rem]', 'px-1.5', 'py-1', 'rounded', 'bg-pink-100', 'w-full', 'mt-0.5'],
-                            { title: `Aniversário: ${b.name}` }
-                        );
-                        bDayDiv.innerHTML = `<span class="text-event-aniversario font-bold mr-1.5">🎂</span> <span class="text-pink-700 truncate">${isMobile ? b.name : b.name.split(' ')[0]}</span>`;
-                        eventsDisplayContainer.appendChild(bDayDiv); 
-                        eventInfosForAria.push(`Aniversário: ${b.name}`);
-                    });
-                
-                dayEl.appendChild(eventsDisplayContainer);
-                if(eventInfosForAria.length > 0) { 
-                    ariaLabelDay += `. Eventos: ${eventInfosForAria.join("; ")}`; 
-                } else {
-                    ariaLabelDay += ". Nenhum evento ou aniversário.";
-                }
-                dayEl.setAttribute('aria-label', ariaLabelDay); 
-                fragment.appendChild(dayEl);
-            }
-
-            // Células vazias para o próximo mês (apenas para visualização desktop/grid)
-            if (!isMobile) {
                 const totalCells = displayStartOffset + daysInMonth;
                 const remainingCells = (totalCells % 7 === 0) ? 0 : 7 - (totalCells % 7);
                 for (let i = 1; i <= remainingCells; i++) {
@@ -811,19 +886,37 @@
         },
 
         setupEventListeners: function() {
-            const prevMonthBtn = document.getElementById('prev-month');
-            const nextMonthBtn = document.getElementById('next-month');
+            const prevButton = document.getElementById('prev-month');
+            const nextButton = document.getElementById('next-month');
             const downloadBirthdaysBtn = document.getElementById('download-birthdays');
             const copyCleaningScheduleBtn = document.getElementById('copy-cleaning-schedule');
             const copyBirthdaysSummaryBtn = document.getElementById('copy-birthdays-summary');
 
-            if (prevMonthBtn) prevMonthBtn.addEventListener('click', () => { this.state.currentDisplayDate.setMonth(this.state.currentDisplayDate.getMonth() - 1); this.renderCalendar(); });
-            if (nextMonthBtn) nextMonthBtn.addEventListener('click', () => { this.state.currentDisplayDate.setMonth(this.state.currentDisplayDate.getMonth() + 1); this.renderCalendar(); });
+            if (prevButton) {
+                prevButton.addEventListener('click', () => {
+                    if (this.state.currentCalendarViewMode === 'week') {
+                        this.state.currentWeekStartDate.setDate(this.state.currentWeekStartDate.getDate() - 7);
+                    } else { // month view
+                        this.state.currentDisplayDate.setMonth(this.state.currentDisplayDate.getMonth() - 1);
+                    }
+                    this.renderCalendar();
+                });
+            }
+            if (nextButton) {
+                nextButton.addEventListener('click', () => {
+                     if (this.state.currentCalendarViewMode === 'week') {
+                        this.state.currentWeekStartDate.setDate(this.state.currentWeekStartDate.getDate() + 7);
+                    } else { // month view
+                        this.state.currentDisplayDate.setMonth(this.state.currentDisplayDate.getMonth() + 1);
+                    }
+                    this.renderCalendar();
+                });
+            }
+            
             if (downloadBirthdaysBtn) downloadBirthdaysBtn.addEventListener('click', () => this.downloadBirthdaysSummary());
             if (copyCleaningScheduleBtn) copyCleaningScheduleBtn.addEventListener('click', () => this.copyCleaningScheduleToClipboard());
             if (copyBirthdaysSummaryBtn) copyBirthdaysSummaryBtn.addEventListener('click', () => this.copyBirthdaysSummaryToClipboard());
             
-            // Listener para redimensionamento da janela
             let resizeTimer;
             window.addEventListener('resize', () => {
                 clearTimeout(resizeTimer);
@@ -831,16 +924,31 @@
                     const newIsMobileView = window.innerWidth < 768;
                     if (newIsMobileView !== this.state.isMobileView) {
                         this.state.isMobileView = newIsMobileView;
-                        this.renderCalendar(); // Re-renderiza o calendário se o modo de visualização mudou
+                        // Se mudou de mobile para desktop, ou vice-versa, precisa resetar a data de display do calendário para o mês atual
+                        if(this.state.isMobileView && this.state.currentCalendarViewMode === 'month'){
+                             this.state.currentWeekStartDate = this.utils.getStartOfWeek(new Date(this.config.panelReferenceDate), this.config.startOfWeekMonday);
+                        } else if (!this.state.isMobileView && this.state.currentCalendarViewMode === 'week'){
+                             this.state.currentDisplayDate = new Date(this.config.panelReferenceDate.getFullYear(), this.config.panelReferenceDate.getMonth(), 1);
+                             this.state.currentWeekStartDate = null; // Limpa para não interferir
+                        }
+                        this.renderCalendar(); 
                     }
-                }, 250); // Debounce
+                }, 250); 
             });
         },
 
         init: function() {
             console.log("Painel da Igreja inicializando...");
-            this.state.currentDisplayDate = new Date(this.config.panelReferenceDate.getFullYear(), this.config.panelReferenceDate.getMonth(), 1);
-            this.state.isMobileView = window.innerWidth < 768; // Define a visualização inicial
+            this.state.isMobileView = window.innerWidth < 768; 
+
+            if (this.state.isMobileView) {
+                this.state.currentCalendarViewMode = 'week';
+                this.state.currentWeekStartDate = this.utils.getStartOfWeek(new Date(this.config.panelReferenceDate), this.config.startOfWeekMonday);
+                this.state.currentDisplayDate = new Date(this.state.currentWeekStartDate); // Para consistência, embora o título use currentWeekStartDate
+            } else {
+                this.state.currentCalendarViewMode = 'month';
+                this.state.currentDisplayDate = new Date(this.config.panelReferenceDate.getFullYear(), this.config.panelReferenceDate.getMonth(), 1);
+            }
             
             let processedEvents = [...this.data.churchEventsBase]; 
             const refDate = this.config.panelReferenceDate;
@@ -850,7 +958,7 @@
                  { name: "Carlos Eduardo (Em 3 Dias Teste)", date: this.utils.formatDate(new Date(new Date(refDate).setDate(refDate.getDate() + 3)), "AAAA-MM-DD") }
             );
             
-            const startRecurrenceDate = new Date(refDate.getFullYear(), refDate.getMonth(), 1); 
+            const startRecurrenceDate = new Date(refDate.getFullYear(), refDate.getMonth() -1, 1); // Gerar para mês anterior, atual e próximos 2
             const endRecurrenceDate = new Date(refDate.getFullYear(), refDate.getMonth() + 3, 0); 
 
             this.data.recurringEventRules.forEach(rule => {
@@ -893,9 +1001,8 @@
                 }
             });
 
-            // Gerar cultos de domingo específicos (Santa Ceia, Missão, Ação Social)
             for (let d = new Date(startRecurrenceDate); d <= endRecurrenceDate; d.setDate(d.getDate() + 1)) {
-                if (d.getDay() === 0) { // Domingo
+                if (d.getDay() === 0) { 
                     const formattedDate = this.utils.formatDate(d, "AAAA-MM-DD");
                     const firstSunday = this.utils.getNthDayOfMonth(d.getFullYear(), d.getMonth(), 0, 1);
                     const secondSunday = this.utils.getNthDayOfMonth(d.getFullYear(), d.getMonth(), 0, 2);
@@ -973,7 +1080,7 @@
                 this.renderCleaningSchedule();
                 this.renderWorshipSchedule(); 
                 this.renderBirthdays();
-                this.renderCalendar(); // Renderiza o calendário inicialmente
+                this.renderCalendar(); 
                 this.setupEventListeners();
                 console.log("Painel da Igreja renderizado com sucesso.");
             } else {
