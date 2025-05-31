@@ -150,7 +150,7 @@
                     <section class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200" aria-labelledby="birthdays-heading">
                         <div class="flex justify-between items-center mb-4">
                             <h2 id="birthdays-heading" class="text-xl font-semibold text-gray-700 flex items-center">
-                                <span class="text-2xl mr-3" aria-hidden="true">🎂</span> {/* Ícone de bolo emoji */}
+                                <span class="text-2xl mr-3" aria-hidden="true">🎂</span>
                                 Aniversariantes da Semana
                             </h2>
                             <button id="download-birthdays" aria-label="Baixar resumo de aniversariantes em formato TXT" class="p-2 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
@@ -418,7 +418,31 @@
                 })
                 .catch(err => {
                     console.error('Erro ao copiar escala de limpeza: ', err);
-                    alert('Erro ao copiar. Tente manualmente.');
+                    // Para navegadores que não suportam clipboard.writeText ou em iframes sem permissão
+                    // Tentar a abordagem execCommand (embora obsoleta, pode funcionar como fallback)
+                    const textArea = document.createElement("textarea");
+                    textArea.value = textToCopy;
+                    textArea.style.position = "fixed"; // Evita rolagem
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        const copyButton = document.getElementById('copy-cleaning-schedule');
+                        if (copyButton) {
+                            const originalContent = copyButton.innerHTML;
+                             copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-green-500"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`;
+                            copyButton.setAttribute('aria-label', 'Escala copiada!');
+                            setTimeout(() => {
+                                copyButton.innerHTML = originalContent;
+                                copyButton.setAttribute('aria-label', 'Copiar escala de limpeza');
+                            }, 2000);
+                        }
+                    } catch (execErr) {
+                        console.error('Erro ao copiar com execCommand: ', execErr);
+                        alert('Erro ao copiar. Por favor, copie manualmente.');
+                    }
+                    document.body.removeChild(textArea);
                 });
         },
 
