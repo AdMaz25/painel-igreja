@@ -11,8 +11,16 @@
             font-family: 'Inter', sans-serif;
             scroll-behavior: smooth;
         }
-        .calendar-event {
-            line-height: 1.3;
+        .calendar-event-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 2px;
+            flex-shrink: 0;
+        }
+        .calendar-event-text-mobile {
+            font-size: 0.6rem; /* Menor para mobile */
+            line-height: 1.1;
         }
         /* Cores para tipos de evento */
         .bg-event-culto { background-color: #ef4444; } /* red-500 */
@@ -21,19 +29,18 @@
         .bg-event-jovens { background-color: #f97316; } /* orange-500 */
         .bg-event-familia { background-color: #a855f7; } /* purple-500 */
         .bg-event-doutrina { background-color: #0ea5e9; } /* sky-500 */
-        .bg-event-informatica { background-color: #f59e0b; } /* amber-500 (cor padrão, substituída abaixo se neon) */
-        .bg-event-informatica-neon { background-color: #39FF14; color: #000000 !important; /* Verde Neon com texto preto */ }
+        .bg-event-informatica { background-color: #f59e0b; } /* amber-500 */
+        .bg-event-informatica-neon { background-color: #39FF14; color: #000000 !important; }
         .bg-event-especial { background-color: #d946ef; } /* fuchsia-500 */
-        /* .bg-event-reuniao { background-color: #84cc16; } // Removido lime-500 */
 
         .text-event-aniversario { color: #ec4899; } /* pink-500 */
 
-        button:focus, [role="button"]:focus, a:focus {
+        button:focus-visible, [role="button"]:focus-visible, a:focus-visible { /* Usar focus-visible para melhor UX */
             outline: 2px solid #3b82f6; /* blue-500 */
             outline-offset: 2px;
         }
-        .day-cell:focus-within { /* Para quando um elemento dentro da célula recebe foco */
-            outline: 2px solid #3b82f6; /* blue-500 */
+        .day-cell:focus-within {
+            outline: 2px solid #3b82f6; 
             outline-offset: -1px; 
         }
 
@@ -97,7 +104,13 @@
                             <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
                         </div>
                         <div id="calendar-days" class="grid grid-cols-7 gap-1" role="grid" aria-live="polite">
-                            <div class="loading-placeholder min-h-[90px]"></div> <div class="loading-placeholder min-h-[90px]"></div> <div class="loading-placeholder min-h-[90px]"></div> <div class="loading-placeholder min-h-[90px]"></div> <div class="loading-placeholder min-h-[90px]"></div> <div class="loading-placeholder min-h-[90px]"></div> <div class="loading-placeholder min-h-[90px]"></div>
+                            <div class="loading-placeholder min-h-[70px] sm:min-h-[90px] md:min-h-[100px]"></div> 
+                            <div class="loading-placeholder min-h-[70px] sm:min-h-[90px] md:min-h-[100px]"></div> 
+                            <div class="loading-placeholder min-h-[70px] sm:min-h-[90px] md:min-h-[100px]"></div> 
+                            <div class="loading-placeholder min-h-[70px] sm:min-h-[90px] md:min-h-[100px]"></div> 
+                            <div class="loading-placeholder min-h-[70px] sm:min-h-[90px] md:min-h-[100px]"></div> 
+                            <div class="loading-placeholder min-h-[70px] sm:min-h-[90px] md:min-h-[100px]"></div> 
+                            <div class="loading-placeholder min-h-[70px] sm:min-h-[90px] md:min-h-[100px]"></div>
                         </div>
                         <div class="mt-4 space-x-2 space-y-1 text-xs text-gray-600 flex flex-wrap" aria-label="Legenda de eventos">
                             <span class="inline-flex items-center mr-2 mb-1"><span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0 bg-event-culto"></span>Culto</span>
@@ -135,9 +148,7 @@
                                 Escala de Limpeza Semanal
                             </h2>
                             <button id="copy-cleaning-schedule" aria-label="Copiar escala de limpeza" class="p-2 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 pointer-events-none">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.393-.03.792-.03 1.188 0 1.13.094 1.976 1.057 1.976 2.192V7.5m-9 3V18a2.25 2.25 0 0 0 2.25 2.25h13.5A2.25 2.25 0 0 0 21 18v-7.5m-9 0h.008v.008H12v-.008Z" />
-                                </svg>
+                                <span class="copy-icon-placeholder">📋</span>
                             </button>
                         </div>
                         <div id="cleaning-schedule" class="space-y-3 text-sm" aria-live="polite">
@@ -153,11 +164,16 @@
                                 <span class="text-2xl mr-3" aria-hidden="true">🎂</span>
                                 Aniversariantes da Semana
                             </h2>
-                            <button id="download-birthdays" aria-label="Baixar resumo de aniversariantes em formato TXT" class="p-2 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5" aria-hidden="true">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                                </svg>
-                            </button>
+                            <div class="flex space-x-1">
+                                <button id="copy-birthdays-summary" aria-label="Copiar resumo de aniversariantes" class="p-2 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
+                                     <span class="copy-icon-placeholder">📋</span>
+                                </button>
+                                <button id="download-birthdays" aria-label="Baixar resumo de aniversariantes em formato TXT" class="p-2 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                         <div id="birthdays" class="space-y-3 text-sm" aria-live="polite">
                              <p class="loading-placeholder-text">Carregando aniversariantes...</p>
@@ -197,7 +213,8 @@
                 informatica: 'text-black', 
                 especial: 'text-fuchsia-600',
                 default: 'text-blue-600'
-            }
+            },
+            maxEventsToShowInCalendarCellMobile: 2, // Número máximo de eventos/pontos a mostrar no calendário mobile
         },
         state: {
             currentDisplayDate: null, 
@@ -389,6 +406,51 @@
             scheduleContainer.appendChild(fragment);
         },
 
+        copyToClipboard: function(text, buttonElement, successIcon = '✅', originalContent = '📋') {
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    if (buttonElement) {
+                        const currentContent = buttonElement.querySelector('.copy-icon-placeholder') ? 
+                                               buttonElement.querySelector('.copy-icon-placeholder').innerHTML : 
+                                               originalContent; // Salva o ícone original se for placeholder
+                        buttonElement.innerHTML = `<span class="text-green-500">${successIcon}</span>`;
+                        buttonElement.setAttribute('aria-label', 'Copiado!');
+                        setTimeout(() => {
+                            buttonElement.innerHTML = `<span class="copy-icon-placeholder">${currentContent}</span>`; // Restaura o ícone original
+                            buttonElement.setAttribute('aria-label', buttonElement.dataset.originalLabel || 'Copiar');
+                        }, 2000);
+                    }
+                })
+                .catch(err => {
+                    console.error('Erro ao copiar: ', err);
+                     // Fallback para execCommand
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    textArea.style.position = "fixed"; 
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        if (buttonElement) {
+                            const currentContent = buttonElement.querySelector('.copy-icon-placeholder') ? 
+                                                   buttonElement.querySelector('.copy-icon-placeholder').innerHTML : 
+                                                   originalContent;
+                            buttonElement.innerHTML = `<span class="text-green-500">${successIcon}</span>`;
+                            buttonElement.setAttribute('aria-label', 'Copiado!');
+                            setTimeout(() => {
+                                buttonElement.innerHTML = `<span class="copy-icon-placeholder">${currentContent}</span>`;
+                                buttonElement.setAttribute('aria-label', buttonElement.dataset.originalLabel || 'Copiar');
+                            }, 2000);
+                        }
+                    } catch (execErr) {
+                        console.error('Erro ao copiar com execCommand: ', execErr);
+                        alert('Erro ao copiar. Por favor, copie manualmente.');
+                    }
+                    document.body.removeChild(textArea);
+                });
+        },
+
         copyCleaningScheduleToClipboard: function() {
             let textToCopy = "Escala de Limpeza Semanal:\n\n";
             const orderedSchedule = [...this.data.cleaningScheduleDefinition].sort((a, b) => {
@@ -402,49 +464,41 @@
                 const responsibleText = Array.isArray(item.responsible) ? item.responsible.join(' e ') : item.responsible;
                 textToCopy += `${dayName}: ${responsibleText}\n`;
             });
-
-            navigator.clipboard.writeText(textToCopy)
-                .then(() => {
-                    const copyButton = document.getElementById('copy-cleaning-schedule');
-                    if (copyButton) {
-                        const originalContent = copyButton.innerHTML;
-                        copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-green-500"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`;
-                        copyButton.setAttribute('aria-label', 'Escala copiada!');
-                        setTimeout(() => {
-                            copyButton.innerHTML = originalContent;
-                            copyButton.setAttribute('aria-label', 'Copiar escala de limpeza');
-                        }, 2000);
-                    }
-                })
-                .catch(err => {
-                    console.error('Erro ao copiar escala de limpeza: ', err);
-                    // Para navegadores que não suportam clipboard.writeText ou em iframes sem permissão
-                    // Tentar a abordagem execCommand (embora obsoleta, pode funcionar como fallback)
-                    const textArea = document.createElement("textarea");
-                    textArea.value = textToCopy;
-                    textArea.style.position = "fixed"; // Evita rolagem
-                    document.body.appendChild(textArea);
-                    textArea.focus();
-                    textArea.select();
-                    try {
-                        document.execCommand('copy');
-                        const copyButton = document.getElementById('copy-cleaning-schedule');
-                        if (copyButton) {
-                            const originalContent = copyButton.innerHTML;
-                             copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-green-500"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`;
-                            copyButton.setAttribute('aria-label', 'Escala copiada!');
-                            setTimeout(() => {
-                                copyButton.innerHTML = originalContent;
-                                copyButton.setAttribute('aria-label', 'Copiar escala de limpeza');
-                            }, 2000);
-                        }
-                    } catch (execErr) {
-                        console.error('Erro ao copiar com execCommand: ', execErr);
-                        alert('Erro ao copiar. Por favor, copie manualmente.');
-                    }
-                    document.body.removeChild(textArea);
-                });
+            const buttonElement = document.getElementById('copy-cleaning-schedule');
+            if (buttonElement && !buttonElement.dataset.originalLabel) {
+                 buttonElement.dataset.originalLabel = buttonElement.getAttribute('aria-label');
+            }
+            this.copyToClipboard(textToCopy, buttonElement, '✅', '📋');
         },
+        
+        copyBirthdaysSummaryToClipboard: function() {
+            const todayRef = new Date(this.config.panelReferenceDate); todayRef.setHours(0, 0, 0, 0);
+            const startOfWeek = new Date(todayRef);
+            const dayOffset = this.config.startOfWeekMonday ? (todayRef.getDay() === 0 ? -6 : 1 - todayRef.getDay()) : -todayRef.getDay();
+            startOfWeek.setDate(todayRef.getDate() + dayOffset);
+            const endOfWeek = new Date(startOfWeek); endOfWeek.setDate(startOfWeek.getDate() + 6); endOfWeek.setHours(23, 59, 59, 999);
+
+            const weekBirthdays = this.data.birthdays
+                .map(b => ({ ...b, parsedDate: this.utils.parseDate(b.date) }))
+                .filter(b => b.parsedDate && b.parsedDate >= startOfWeek && b.parsedDate <= endOfWeek)
+                .sort((a, b) => a.parsedDate - b.parsedDate);
+
+            if (weekBirthdays.length === 0) {
+                alert("Nenhum aniversariante na semana para copiar.");
+                return;
+            }
+
+            let summaryText = `Aniversariantes da Semana (${this.utils.formatDate(startOfWeek)} - ${this.utils.formatDate(endOfWeek)}):\n\n`;
+            weekBirthdays.forEach(b => {
+                summaryText += `${b.name} - ${this.utils.formatDate(b.parsedDate)} (${this.config.diasDaSemana[b.parsedDate.getDay()]})\n`;
+            });
+            const buttonElement = document.getElementById('copy-birthdays-summary');
+             if (buttonElement && !buttonElement.dataset.originalLabel) {
+                 buttonElement.dataset.originalLabel = buttonElement.getAttribute('aria-label');
+            }
+            this.copyToClipboard(summaryText, buttonElement, '✅', '📋');
+        },
+
 
         renderWorshipSchedule: function() {
             const detailsContainer = document.getElementById('worship-schedule-details');
@@ -620,7 +674,7 @@
 
             for (let i = 0; i < displayStartOffset; i++) {
                 const day = prevMonthLastDay - displayStartOffset + 1 + i;
-                const dayEl = this.utils.createElement('div', ['day-cell', 'min-h-[90px]', 'md:min-h-[100px]', 'p-1', 'rounded-md', 'bg-gray-50', 'border', 'border-gray-200', 'flex', 'flex-col', 'items-start', 'text-xs', 'opacity-75']);
+                const dayEl = this.utils.createElement('div', ['day-cell', 'min-h-[70px]', 'sm:min-h-[90px]', 'md:min-h-[100px]', 'p-1', 'rounded-md', 'bg-gray-50', 'border', 'border-gray-200', 'flex', 'flex-col', 'items-start', 'text-xs', 'opacity-75']);
                 dayEl.setAttribute('role', 'gridcell');
                 dayEl.setAttribute('aria-label', `${day} (mês anterior)`);
                 dayEl.appendChild(this.utils.createElement('span', ['font-semibold', 'text-gray-400', 'self-end', 'p-1', 'leading-none'], {}, day.toString()));
@@ -629,7 +683,7 @@
 
             for (let day = 1; day <= daysInMonth; day++) {
                 const currentDate = new Date(year, month, day);
-                const dayClasses = ['day-cell', 'min-h-[90px]', 'md:min-h-[100px]', 'p-1', 'rounded-md', 'border', 'flex', 'flex-col', 'items-start', 'text-xs', 'hover:bg-gray-50', 'transition-colors', 'relative'];
+                const dayClasses = ['day-cell', 'min-h-[70px]', 'sm:min-h-[90px]', 'md:min-h-[100px]', 'p-1', 'rounded-md', 'border', 'flex', 'flex-col', 'items-start', 'text-xs', 'hover:bg-gray-50', 'transition-colors', 'relative'];
                 let ariaLabelDay = `${day} de ${this.config.mesesDoAno[month]}, ${this.config.diasDaSemana[currentDate.getDay()]}`;
                 
                 const isToday = currentDate.toDateString() === todayRef.toDateString();
@@ -653,10 +707,22 @@
 
                 const eventsContainer = this.utils.createElement('div', ['w-full', 'mt-0.5', 'space-y-0.5', 'overflow-hidden', 'flex-grow']);
                 let eventInfosForAria = [];
-
-                this.state.allProcessedEvents
-                    .filter(e => e.date === this.utils.formatDate(currentDate, "AAAA-MM-DD"))
-                    .forEach(event => {
+                
+                const eventsOnThisDay = this.state.allProcessedEvents.filter(e => e.date === this.utils.formatDate(currentDate, "AAAA-MM-DD"));
+                
+                // Mobile: show dots or limited text
+                if (window.innerWidth < 640 && eventsOnThisDay.length > this.config.maxEventsToShowInCalendarCellMobile) {
+                    for(let i = 0; i < this.config.maxEventsToShowInCalendarCellMobile; i++) {
+                        const event = eventsOnThisDay[i];
+                        const bgColorClass = this.config.eventTypeColors[event.type] || this.config.eventTypeColors.default;
+                        const eventDot = this.utils.createElement('div', ['calendar-event-dot', bgColorClass], {title: `${event.title} às ${this.utils.formatTime(event.time)}`});
+                        eventsContainer.appendChild(eventDot);
+                    }
+                    if (eventsOnThisDay.length > this.config.maxEventsToShowInCalendarCellMobile) {
+                         eventsContainer.appendChild(this.utils.createElement('span', ['text-gray-500', 'text-[0.6rem]'], {}, `+${eventsOnThisDay.length - this.config.maxEventsToShowInCalendarCellMobile} mais`));
+                    }
+                } else { // Desktop: show event titles (truncated)
+                    eventsOnThisDay.forEach(event => {
                         const bgColorClass = this.config.eventTypeColors[event.type] || this.config.eventTypeColors.default;
                         let textColorClass = 'text-white';
                         if (event.type === 'informatica' && bgColorClass === 'bg-event-informatica-neon') {
@@ -669,8 +735,10 @@
                             event.title
                         );
                         eventsContainer.appendChild(eventDiv); 
-                        eventInfosForAria.push(`${event.title} às ${this.utils.formatTime(event.time)}`);
                     });
+                }
+                eventsOnThisDay.forEach(event => eventInfosForAria.push(`${event.title} às ${this.utils.formatTime(event.time)}`));
+
 
                 this.data.birthdays
                     .filter(b => {
@@ -700,7 +768,7 @@
             const totalCells = displayStartOffset + daysInMonth;
             const remainingCells = (totalCells % 7 === 0) ? 0 : 7 - (totalCells % 7);
             for (let i = 1; i <= remainingCells; i++) {
-                const dayEl = this.utils.createElement('div', ['day-cell', 'min-h-[90px]', 'md:min-h-[100px]', 'p-1', 'rounded-md', 'bg-gray-50', 'border', 'border-gray-200', 'flex', 'flex-col', 'items-start', 'text-xs', 'opacity-75']);
+                const dayEl = this.utils.createElement('div', ['day-cell', 'min-h-[70px]', 'sm:min-h-[90px]', 'md:min-h-[100px]', 'p-1', 'rounded-md', 'bg-gray-50', 'border', 'border-gray-200', 'flex', 'flex-col', 'items-start', 'text-xs', 'opacity-75']);
                 dayEl.setAttribute('role', 'gridcell');
                 dayEl.setAttribute('aria-label', `${i} (próximo mês)`);
                 dayEl.appendChild(this.utils.createElement('span', ['font-semibold', 'text-gray-400', 'self-end', 'p-1', 'leading-none'], {}, i.toString()));
@@ -714,6 +782,8 @@
             const nextMonthBtn = document.getElementById('next-month');
             const downloadBirthdaysBtn = document.getElementById('download-birthdays');
             const copyCleaningScheduleBtn = document.getElementById('copy-cleaning-schedule');
+            const copyBirthdaysSummaryBtn = document.getElementById('copy-birthdays-summary');
+
 
             if (prevMonthBtn) {
                 prevMonthBtn.addEventListener('click', () => {
@@ -740,6 +810,12 @@
                     this.copyCleaningScheduleToClipboard();
                 });
             } else { console.error("Botão #copy-cleaning-schedule não encontrado.");}
+
+            if (copyBirthdaysSummaryBtn) {
+                copyBirthdaysSummaryBtn.addEventListener('click', () => {
+                    this.copyBirthdaysSummaryToClipboard();
+                });
+            } else { console.error("Botão #copy-birthdays-summary não encontrado.");}
         },
 
         init: function() {
