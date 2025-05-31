@@ -11,17 +11,29 @@
             font-family: 'Inter', sans-serif;
             scroll-behavior: smooth;
         }
-        .calendar-event-dot {
+        .calendar-event-dot { 
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            margin-right: 2px;
+            margin-right: 3px; 
+            margin-top: 3px;
             flex-shrink: 0;
         }
-        .calendar-event-text-mobile {
-            font-size: 0.6rem; /* Menor para mobile */
-            line-height: 1.1;
+        .calendar-event-text-desktop { 
+            line-height: 1.3;
         }
+        .calendar-event-text-mobile {
+            font-size: 0.75rem; /* Aumentado para melhor leitura no mobile */
+            line-height: 1.2;
+            padding: 2px 4px;
+            border-radius: 0.25rem;
+            margin-top: 2px;
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
         /* Cores para tipos de evento */
         .bg-event-culto { background-color: #ef4444; } /* red-500 */
         .bg-event-ebd { background-color: #6366f1; } /* indigo-500 */
@@ -29,13 +41,13 @@
         .bg-event-jovens { background-color: #f97316; } /* orange-500 */
         .bg-event-familia { background-color: #a855f7; } /* purple-500 */
         .bg-event-doutrina { background-color: #0ea5e9; } /* sky-500 */
-        .bg-event-informatica { background-color: #f59e0b; } /* amber-500 */
+        .bg-event-informatica { background-color: #f59e0b; } 
         .bg-event-informatica-neon { background-color: #39FF14; color: #000000 !important; }
         .bg-event-especial { background-color: #d946ef; } /* fuchsia-500 */
 
         .text-event-aniversario { color: #ec4899; } /* pink-500 */
 
-        button:focus-visible, [role="button"]:focus-visible, a:focus-visible { /* Usar focus-visible para melhor UX */
+        button:focus-visible, [role="button"]:focus-visible, a:focus-visible {
             outline: 2px solid #3b82f6; /* blue-500 */
             outline-offset: 2px;
         }
@@ -100,10 +112,10 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="grid grid-cols-7 gap-1 text-xs font-semibold text-gray-500 text-center mb-1">
+                        <div class="hidden md:grid grid-cols-7 gap-1 text-xs font-semibold text-gray-500 text-center mb-1"> {/* Oculto no mobile */}
                             <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
                         </div>
-                        <div id="calendar-days" class="grid grid-cols-7 gap-1" role="grid" aria-live="polite">
+                        <div id="calendar-days" class="grid grid-cols-1 md:grid-cols-7 gap-2 md:gap-1" role="grid" aria-live="polite"> {/* grid-cols-1 para mobile */}
                             <div class="loading-placeholder min-h-[70px] sm:min-h-[90px] md:min-h-[100px]"></div> 
                             <div class="loading-placeholder min-h-[70px] sm:min-h-[90px] md:min-h-[100px]"></div> 
                             <div class="loading-placeholder min-h-[70px] sm:min-h-[90px] md:min-h-[100px]"></div> 
@@ -147,8 +159,8 @@
                                 <svg class="w-8 h-8 mr-3 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg>
                                 Escala de Limpeza Semanal
                             </h2>
-                            <button id="copy-cleaning-schedule" aria-label="Copiar escala de limpeza" class="p-2 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
-                                <span class="copy-icon-placeholder">📋</span>
+                            <button id="copy-cleaning-schedule" aria-label="Copiar escala de limpeza" data-original-label="Copiar escala de limpeza" class="p-2 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
+                                <span class="copy-icon-placeholder text-xl">📋</span>
                             </button>
                         </div>
                         <div id="cleaning-schedule" class="space-y-3 text-sm" aria-live="polite">
@@ -165,8 +177,8 @@
                                 Aniversariantes da Semana
                             </h2>
                             <div class="flex space-x-1">
-                                <button id="copy-birthdays-summary" aria-label="Copiar resumo de aniversariantes" class="p-2 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
-                                     <span class="copy-icon-placeholder">📋</span>
+                                <button id="copy-birthdays-summary" aria-label="Copiar resumo de aniversariantes" data-original-label="Copiar resumo de aniversariantes" class="p-2 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
+                                     <span class="copy-icon-placeholder text-xl">📋</span>
                                 </button>
                                 <button id="download-birthdays" aria-label="Baixar resumo de aniversariantes em formato TXT" class="p-2 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5" aria-hidden="true">
@@ -214,11 +226,12 @@
                 especial: 'text-fuchsia-600',
                 default: 'text-blue-600'
             },
-            maxEventsToShowInCalendarCellMobile: 2, // Número máximo de eventos/pontos a mostrar no calendário mobile
+            maxEventsToShowInCalendarCellMobile: 3, 
         },
         state: {
             currentDisplayDate: null, 
             allProcessedEvents: [], 
+            isMobileView: window.innerWidth < 768, // md breakpoint do Tailwind
         },
         data: {
             cleaningScheduleDefinition: [
@@ -302,18 +315,16 @@
             },
             getNthDayOfMonth: (year, month, dayOfWeek, n) => { 
                  const date = new Date(year, month, 1); 
-                 let count = 0;
                  let occurrences = 0;
-
-                 while(date.getDay() !== dayOfWeek) {
+                 while(date.getDay() !== dayOfWeek && date.getMonth() === month) {
                      date.setDate(date.getDate() + 1);
-                     if (date.getMonth() !== month) return null; 
                  }
+                 if (date.getMonth() !== month) return null; 
 
                  while(date.getMonth() === month) {
                      occurrences++;
                      if (occurrences === n) return new Date(date); 
-                     date.setDate(date.getDate() + 7);
+                     date.setDate(date.getDate() + 7); 
                  }
                  return null; 
             },
@@ -361,7 +372,7 @@
                 }
                 detailsContainer.appendChild(fragment);
             } else {
-                detailsContainer.textContent = "Nenhum evento principal programado.";
+                detailsContainer.innerHTML = '<p>Nenhum evento principal programado.</p>';
             }
         },
 
@@ -406,24 +417,21 @@
             scheduleContainer.appendChild(fragment);
         },
 
-        copyToClipboard: function(text, buttonElement, successIcon = '✅', originalContent = '📋') {
+        copyToClipboard: function(text, buttonElement, successIcon = '✅', originalIcon = '📋') {
+            const originalAriaLabel = buttonElement.dataset.originalLabel || buttonElement.getAttribute('aria-label'); // Salva o aria-label original
             navigator.clipboard.writeText(text)
                 .then(() => {
                     if (buttonElement) {
-                        const currentContent = buttonElement.querySelector('.copy-icon-placeholder') ? 
-                                               buttonElement.querySelector('.copy-icon-placeholder').innerHTML : 
-                                               originalContent; // Salva o ícone original se for placeholder
-                        buttonElement.innerHTML = `<span class="text-green-500">${successIcon}</span>`;
+                        buttonElement.innerHTML = `<span class="text-green-500 text-xl">${successIcon}</span>`;
                         buttonElement.setAttribute('aria-label', 'Copiado!');
                         setTimeout(() => {
-                            buttonElement.innerHTML = `<span class="copy-icon-placeholder">${currentContent}</span>`; // Restaura o ícone original
-                            buttonElement.setAttribute('aria-label', buttonElement.dataset.originalLabel || 'Copiar');
+                            buttonElement.innerHTML = `<span class="copy-icon-placeholder text-xl">${originalIcon}</span>`; 
+                            buttonElement.setAttribute('aria-label', originalAriaLabel);
                         }, 2000);
                     }
                 })
                 .catch(err => {
-                    console.error('Erro ao copiar: ', err);
-                     // Fallback para execCommand
+                    console.error('Erro ao copiar (navigator.clipboard): ', err);
                     const textArea = document.createElement("textarea");
                     textArea.value = text;
                     textArea.style.position = "fixed"; 
@@ -433,14 +441,11 @@
                     try {
                         document.execCommand('copy');
                         if (buttonElement) {
-                            const currentContent = buttonElement.querySelector('.copy-icon-placeholder') ? 
-                                                   buttonElement.querySelector('.copy-icon-placeholder').innerHTML : 
-                                                   originalContent;
-                            buttonElement.innerHTML = `<span class="text-green-500">${successIcon}</span>`;
+                            buttonElement.innerHTML = `<span class="text-green-500 text-xl">${successIcon}</span>`;
                             buttonElement.setAttribute('aria-label', 'Copiado!');
                             setTimeout(() => {
-                                buttonElement.innerHTML = `<span class="copy-icon-placeholder">${currentContent}</span>`;
-                                buttonElement.setAttribute('aria-label', buttonElement.dataset.originalLabel || 'Copiar');
+                                buttonElement.innerHTML = `<span class="copy-icon-placeholder text-xl">${originalIcon}</span>`;
+                                buttonElement.setAttribute('aria-label', originalAriaLabel);
                             }, 2000);
                         }
                     } catch (execErr) {
@@ -465,10 +470,7 @@
                 textToCopy += `${dayName}: ${responsibleText}\n`;
             });
             const buttonElement = document.getElementById('copy-cleaning-schedule');
-            if (buttonElement && !buttonElement.dataset.originalLabel) {
-                 buttonElement.dataset.originalLabel = buttonElement.getAttribute('aria-label');
-            }
-            this.copyToClipboard(textToCopy, buttonElement, '✅', '📋');
+            this.copyToClipboard(textToCopy, buttonElement);
         },
         
         copyBirthdaysSummaryToClipboard: function() {
@@ -493,10 +495,7 @@
                 summaryText += `${b.name} - ${this.utils.formatDate(b.parsedDate)} (${this.config.diasDaSemana[b.parsedDate.getDay()]})\n`;
             });
             const buttonElement = document.getElementById('copy-birthdays-summary');
-             if (buttonElement && !buttonElement.dataset.originalLabel) {
-                 buttonElement.dataset.originalLabel = buttonElement.getAttribute('aria-label');
-            }
-            this.copyToClipboard(summaryText, buttonElement, '✅', '📋');
+            this.copyToClipboard(summaryText, buttonElement);
         },
 
 
@@ -564,7 +563,7 @@
                 });
                 detailsContainer.appendChild(fragment);
             } else {
-                detailsContainer.textContent = "Nenhuma escala de evento ou culto programada para os próximos dias.";
+                 detailsContainer.innerHTML = '<p>Nenhuma escala de evento ou culto programada para os próximos dias.</p>';
             }
         },
 
@@ -594,7 +593,7 @@
                 .sort((a, b) => a.parsedDate - b.parsedDate);
 
             if (weekBirthdays.length === 0) {
-                birthdayContainer.appendChild(this.utils.createElement('p', ['text-gray-500', 'text-xs'], {}, 'Nenhum aniversariante nesta semana.'));
+                birthdayContainer.innerHTML = '<p class="text-gray-500 text-xs">Nenhum aniversariante nesta semana.</p>';
                 return;
             }
             weekBirthdays.forEach(b => {
@@ -653,6 +652,9 @@
             const calendarMonthYearEl = document.getElementById('calendar-month-year');
             if (!calendarDaysContainer || !calendarMonthYearEl) { console.error("Elementos do calendário não encontrados."); return; }
             
+            this.state.isMobileView = window.innerWidth < 768; // Atualiza a view aqui
+            const isMobile = this.state.isMobileView;
+
             calendarDaysContainer.innerHTML = ''; 
             const fragment = document.createDocumentFragment();
             
@@ -672,73 +674,101 @@
             const todayRef = new Date(this.config.panelReferenceDate); todayRef.setHours(0,0,0,0);
             const prevMonthLastDay = new Date(year, month, 0).getDate();
 
-            for (let i = 0; i < displayStartOffset; i++) {
-                const day = prevMonthLastDay - displayStartOffset + 1 + i;
-                const dayEl = this.utils.createElement('div', ['day-cell', 'min-h-[70px]', 'sm:min-h-[90px]', 'md:min-h-[100px]', 'p-1', 'rounded-md', 'bg-gray-50', 'border', 'border-gray-200', 'flex', 'flex-col', 'items-start', 'text-xs', 'opacity-75']);
-                dayEl.setAttribute('role', 'gridcell');
-                dayEl.setAttribute('aria-label', `${day} (mês anterior)`);
-                dayEl.appendChild(this.utils.createElement('span', ['font-semibold', 'text-gray-400', 'self-end', 'p-1', 'leading-none'], {}, day.toString()));
-                fragment.appendChild(dayEl);
+            // Dias do mês anterior (apenas para visualização desktop/grid)
+            if (!isMobile) {
+                for (let i = 0; i < displayStartOffset; i++) {
+                    const day = prevMonthLastDay - displayStartOffset + 1 + i;
+                    const dayEl = this.utils.createElement('div', ['day-cell', 'min-h-[70px]', 'sm:min-h-[90px]', 'md:min-h-[100px]', 'p-1', 'rounded-md', 'bg-gray-50', 'border', 'border-gray-200', 'flex', 'flex-col', 'items-start', 'text-xs', 'opacity-75']);
+                    dayEl.setAttribute('role', 'gridcell');
+                    dayEl.setAttribute('aria-label', `${day} (mês anterior)`);
+                    dayEl.appendChild(this.utils.createElement('span', ['font-semibold', 'text-gray-400', 'self-end', 'p-1', 'leading-none'], {}, day.toString()));
+                    fragment.appendChild(dayEl);
+                }
             }
+
 
             for (let day = 1; day <= daysInMonth; day++) {
                 const currentDate = new Date(year, month, day);
-                const dayClasses = ['day-cell', 'min-h-[70px]', 'sm:min-h-[90px]', 'md:min-h-[100px]', 'p-1', 'rounded-md', 'border', 'flex', 'flex-col', 'items-start', 'text-xs', 'hover:bg-gray-50', 'transition-colors', 'relative'];
+                const dayCellBaseClasses = ['day-cell', 'p-2', 'rounded-md', 'border', 'flex', 'transition-colors', 'relative'];
+                let dayCellLayoutClasses = isMobile ? ['flex-col', 'items-start', 'space-y-1'] : ['min-h-[70px]', 'sm:min-h-[90px]', 'md:min-h-[100px]', 'flex-col', 'items-start'];
+
+                const dayClasses = [...dayCellBaseClasses, ...dayCellLayoutClasses];
+                
                 let ariaLabelDay = `${day} de ${this.config.mesesDoAno[month]}, ${this.config.diasDaSemana[currentDate.getDay()]}`;
                 
                 const isToday = currentDate.toDateString() === todayRef.toDateString();
                 if (isToday) { 
-                    dayClasses.push('bg-blue-100', 'border-blue-300'); 
+                    dayClasses.push(isMobile ? 'bg-blue-50 border-blue-400' : 'bg-blue-100 border-blue-300'); 
                 } else { 
-                    dayClasses.push('bg-white', 'border-gray-200'); 
+                    dayClasses.push(isMobile ? 'bg-white border-gray-300' : 'bg-white border-gray-200'); 
                 }
                 
                 const dayEl = this.utils.createElement('div', dayClasses); 
-                dayEl.setAttribute('role', 'gridcell');
+                dayEl.setAttribute('role', 'gridcell'); // Ou 'listitem' no mobile, se o container for 'list'
                 dayEl.setAttribute('tabindex', '0'); 
 
-                const dayNumberClasses = ['font-semibold', 'self-end', 'p-0.5', 'leading-none', 'w-6', 'h-6', 'flex', 'items-center', 'justify-center', 'rounded-full', 'mb-0.5'];
-                if (isToday) { 
-                    dayNumberClasses.push('bg-blue-500', 'text-white'); 
-                } else { 
-                    dayNumberClasses.push('text-gray-700'); 
+                // Cabeçalho do dia (Número e nome do dia no mobile)
+                const dayHeaderContainer = this.utils.createElement('div', ['flex', 'justify-between', 'w-full', 'items-center', isMobile ? 'mb-1' : '']);
+                const dayNumberClasses = ['font-semibold', 'p-0.5', 'leading-none', 'w-6', 'h-6', 'flex', 'items-center', 'justify-center', 'rounded-full'];
+                if(isToday) {
+                    dayNumberClasses.push('bg-blue-500', 'text-white');
+                } else {
+                    dayNumberClasses.push(isMobile ? 'text-gray-700' : 'text-gray-700');
                 }
-                dayEl.appendChild(this.utils.createElement('span', dayNumberClasses, {}, day.toString()));
 
-                const eventsContainer = this.utils.createElement('div', ['w-full', 'mt-0.5', 'space-y-0.5', 'overflow-hidden', 'flex-grow']);
-                let eventInfosForAria = [];
+                if (isMobile) {
+                    dayHeaderContainer.appendChild(this.utils.createElement('span', ['text-sm', 'font-medium', isToday ? 'text-blue-700' : 'text-gray-600'], {}, this.config.diasDaSemana[currentDate.getDay()]));
+                    dayHeaderContainer.appendChild(this.utils.createElement('span', dayNumberClasses, {}, day.toString()));
+                    dayEl.appendChild(dayHeaderContainer);
+                } else {
+                     dayEl.appendChild(this.utils.createElement('span', [...dayNumberClasses, 'self-end', 'mb-0.5'], {}, day.toString()));
+                }
+
+
+                const eventsDisplayContainer = this.utils.createElement('div', ['w-full', 'flex-grow', 'overflow-hidden']);
+                if (isMobile) {
+                    eventsDisplayContainer.classList.add('space-y-1');
+                } else {
+                     eventsDisplayContainer.classList.add('mt-0.5', 'flex', 'flex-row', 'flex-wrap', 'items-start', 'gap-0.5'); // Para pontos no desktop
+                }
                 
+                let eventInfosForAria = [];
                 const eventsOnThisDay = this.state.allProcessedEvents.filter(e => e.date === this.utils.formatDate(currentDate, "AAAA-MM-DD"));
                 
-                // Mobile: show dots or limited text
-                if (window.innerWidth < 640 && eventsOnThisDay.length > this.config.maxEventsToShowInCalendarCellMobile) {
-                    for(let i = 0; i < this.config.maxEventsToShowInCalendarCellMobile; i++) {
-                        const event = eventsOnThisDay[i];
-                        const bgColorClass = this.config.eventTypeColors[event.type] || this.config.eventTypeColors.default;
-                        const eventDot = this.utils.createElement('div', ['calendar-event-dot', bgColorClass], {title: `${event.title} às ${this.utils.formatTime(event.time)}`});
-                        eventsContainer.appendChild(eventDot);
-                    }
-                    if (eventsOnThisDay.length > this.config.maxEventsToShowInCalendarCellMobile) {
-                         eventsContainer.appendChild(this.utils.createElement('span', ['text-gray-500', 'text-[0.6rem]'], {}, `+${eventsOnThisDay.length - this.config.maxEventsToShowInCalendarCellMobile} mais`));
-                    }
-                } else { // Desktop: show event titles (truncated)
-                    eventsOnThisDay.forEach(event => {
-                        const bgColorClass = this.config.eventTypeColors[event.type] || this.config.eventTypeColors.default;
-                        let textColorClass = 'text-white';
-                        if (event.type === 'informatica' && bgColorClass === 'bg-event-informatica-neon') {
-                            textColorClass = 'text-black';
+                if (eventsOnThisDay.length > 0) {
+                    if (isMobile) { // Mobile: mostrar texto dos eventos
+                        eventsOnThisDay.forEach(event => {
+                            const bgColorClass = this.config.eventTypeColors[event.type] || this.config.eventTypeColors.default;
+                            let textColorClass = 'text-white';
+                            if (event.type === 'informatica' && bgColorClass === 'bg-event-informatica-neon') {
+                                textColorClass = 'text-black';
+                            }
+                            const eventDiv = this.utils.createElement('div', 
+                                ['calendar-event-text-mobile', bgColorClass, textColorClass], 
+                                { title: `${event.title} às ${this.utils.formatTime(event.time)}` }, 
+                                `${this.utils.formatTime(event.time)} - ${event.title}`
+                            );
+                            eventsDisplayContainer.appendChild(eventDiv);
+                        });
+                    } else { // Desktop/Tablet: mostrar pontos
+                        const maxDots = this.config.maxEventsToShowInCalendarCellMobile;
+                        for (let i = 0; i < Math.min(eventsOnThisDay.length, maxDots); i++) {
+                            const event = eventsOnThisDay[i];
+                            const bgColorClass = this.config.eventTypeColors[event.type] || this.config.eventTypeColors.default;
+                            const eventDot = this.utils.createElement('div', 
+                                ['calendar-event-dot', bgColorClass], 
+                                { title: `${event.title} às ${this.utils.formatTime(event.time)}` }
+                            );
+                            eventsDisplayContainer.appendChild(eventDot);
                         }
-
-                        const eventDiv = this.utils.createElement('div', 
-                            ['calendar-event', bgColorClass, textColorClass, 'text-[0.65rem]', 'sm:text-[0.7rem]', 'px-1', 'py-0.5', 'rounded', 'truncate', 'w-full'], 
-                            { title: `${event.title} às ${this.utils.formatTime(event.time)}` }, 
-                            event.title
-                        );
-                        eventsContainer.appendChild(eventDiv); 
-                    });
+                        if (eventsOnThisDay.length > maxDots) {
+                            eventsDisplayContainer.appendChild(
+                                this.utils.createElement('span', ['text-gray-500', 'text-[0.6rem]', 'ml-0.5', 'mt-1'], {}, `+${eventsOnThisDay.length - maxDots}`)
+                            );
+                        }
+                    }
+                    eventsOnThisDay.forEach(event => eventInfosForAria.push(`${event.title} às ${this.utils.formatTime(event.time)}`));
                 }
-                eventsOnThisDay.forEach(event => eventInfosForAria.push(`${event.title} às ${this.utils.formatTime(event.time)}`));
-
 
                 this.data.birthdays
                     .filter(b => {
@@ -747,15 +777,15 @@
                     })
                     .forEach(b => {
                         const bDayDiv = this.utils.createElement('div', 
-                            ['calendar-event', 'flex', 'items-center', 'text-[0.65rem]', 'sm:text-[0.7rem]', 'px-1', 'py-0.5', 'rounded', 'bg-pink-100', 'w-full'],
+                            ['flex', 'items-center', isMobile ? 'text-xs' : 'text-[0.65rem] sm:text-[0.7rem]', 'px-1.5', 'py-1', 'rounded', 'bg-pink-100', 'w-full', 'mt-0.5'],
                             { title: `Aniversário: ${b.name}` }
                         );
-                        bDayDiv.innerHTML = `<span class="text-event-aniversario font-bold mr-1">🎂</span> <span class="text-pink-700 truncate">${b.name.split(' ')[0]}</span>`;
-                        eventsContainer.appendChild(bDayDiv); 
+                        bDayDiv.innerHTML = `<span class="text-event-aniversario font-bold mr-1.5">🎂</span> <span class="text-pink-700 truncate">${isMobile ? b.name : b.name.split(' ')[0]}</span>`;
+                        eventsDisplayContainer.appendChild(bDayDiv); 
                         eventInfosForAria.push(`Aniversário: ${b.name}`);
                     });
                 
-                dayEl.appendChild(eventsContainer);
+                dayEl.appendChild(eventsDisplayContainer);
                 if(eventInfosForAria.length > 0) { 
                     ariaLabelDay += `. Eventos: ${eventInfosForAria.join("; ")}`; 
                 } else {
@@ -765,14 +795,17 @@
                 fragment.appendChild(dayEl);
             }
 
-            const totalCells = displayStartOffset + daysInMonth;
-            const remainingCells = (totalCells % 7 === 0) ? 0 : 7 - (totalCells % 7);
-            for (let i = 1; i <= remainingCells; i++) {
-                const dayEl = this.utils.createElement('div', ['day-cell', 'min-h-[70px]', 'sm:min-h-[90px]', 'md:min-h-[100px]', 'p-1', 'rounded-md', 'bg-gray-50', 'border', 'border-gray-200', 'flex', 'flex-col', 'items-start', 'text-xs', 'opacity-75']);
-                dayEl.setAttribute('role', 'gridcell');
-                dayEl.setAttribute('aria-label', `${i} (próximo mês)`);
-                dayEl.appendChild(this.utils.createElement('span', ['font-semibold', 'text-gray-400', 'self-end', 'p-1', 'leading-none'], {}, i.toString()));
-                fragment.appendChild(dayEl);
+            // Células vazias para o próximo mês (apenas para visualização desktop/grid)
+            if (!isMobile) {
+                const totalCells = displayStartOffset + daysInMonth;
+                const remainingCells = (totalCells % 7 === 0) ? 0 : 7 - (totalCells % 7);
+                for (let i = 1; i <= remainingCells; i++) {
+                    const dayEl = this.utils.createElement('div', ['day-cell', 'min-h-[70px]', 'sm:min-h-[90px]', 'md:min-h-[100px]', 'p-1', 'rounded-md', 'bg-gray-50', 'border', 'border-gray-200', 'flex', 'flex-col', 'items-start', 'text-xs', 'opacity-75']);
+                    dayEl.setAttribute('role', 'gridcell');
+                    dayEl.setAttribute('aria-label', `${i} (próximo mês)`);
+                    dayEl.appendChild(this.utils.createElement('span', ['font-semibold', 'text-gray-400', 'self-end', 'p-1', 'leading-none'], {}, i.toString()));
+                    fragment.appendChild(dayEl);
+                }
             }
             calendarDaysContainer.appendChild(fragment);
         },
@@ -784,43 +817,30 @@
             const copyCleaningScheduleBtn = document.getElementById('copy-cleaning-schedule');
             const copyBirthdaysSummaryBtn = document.getElementById('copy-birthdays-summary');
 
-
-            if (prevMonthBtn) {
-                prevMonthBtn.addEventListener('click', () => {
-                    this.state.currentDisplayDate.setMonth(this.state.currentDisplayDate.getMonth() - 1);
-                    this.renderCalendar();
-                });
-            } else { console.error("Botão #prev-month não encontrado.");}
+            if (prevMonthBtn) prevMonthBtn.addEventListener('click', () => { this.state.currentDisplayDate.setMonth(this.state.currentDisplayDate.getMonth() - 1); this.renderCalendar(); });
+            if (nextMonthBtn) nextMonthBtn.addEventListener('click', () => { this.state.currentDisplayDate.setMonth(this.state.currentDisplayDate.getMonth() + 1); this.renderCalendar(); });
+            if (downloadBirthdaysBtn) downloadBirthdaysBtn.addEventListener('click', () => this.downloadBirthdaysSummary());
+            if (copyCleaningScheduleBtn) copyCleaningScheduleBtn.addEventListener('click', () => this.copyCleaningScheduleToClipboard());
+            if (copyBirthdaysSummaryBtn) copyBirthdaysSummaryBtn.addEventListener('click', () => this.copyBirthdaysSummaryToClipboard());
             
-            if (nextMonthBtn) {
-                nextMonthBtn.addEventListener('click', () => {
-                    this.state.currentDisplayDate.setMonth(this.state.currentDisplayDate.getMonth() + 1);
-                    this.renderCalendar();
-                });
-            } else { console.error("Botão #next-month não encontrado.");}
-            
-            if (downloadBirthdaysBtn) {
-                downloadBirthdaysBtn.addEventListener('click', () => {
-                    this.downloadBirthdaysSummary();
-                });
-            } else { console.error("Botão #download-birthdays não encontrado."); }
-
-            if (copyCleaningScheduleBtn) {
-                copyCleaningScheduleBtn.addEventListener('click', () => {
-                    this.copyCleaningScheduleToClipboard();
-                });
-            } else { console.error("Botão #copy-cleaning-schedule não encontrado.");}
-
-            if (copyBirthdaysSummaryBtn) {
-                copyBirthdaysSummaryBtn.addEventListener('click', () => {
-                    this.copyBirthdaysSummaryToClipboard();
-                });
-            } else { console.error("Botão #copy-birthdays-summary não encontrado.");}
+            // Listener para redimensionamento da janela
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    const newIsMobileView = window.innerWidth < 768;
+                    if (newIsMobileView !== this.state.isMobileView) {
+                        this.state.isMobileView = newIsMobileView;
+                        this.renderCalendar(); // Re-renderiza o calendário se o modo de visualização mudou
+                    }
+                }, 250); // Debounce
+            });
         },
 
         init: function() {
             console.log("Painel da Igreja inicializando...");
             this.state.currentDisplayDate = new Date(this.config.panelReferenceDate.getFullYear(), this.config.panelReferenceDate.getMonth(), 1);
+            this.state.isMobileView = window.innerWidth < 768; // Define a visualização inicial
             
             let processedEvents = [...this.data.churchEventsBase]; 
             const refDate = this.config.panelReferenceDate;
@@ -953,7 +973,7 @@
                 this.renderCleaningSchedule();
                 this.renderWorshipSchedule(); 
                 this.renderBirthdays();
-                this.renderCalendar();
+                this.renderCalendar(); // Renderiza o calendário inicialmente
                 this.setupEventListeners();
                 console.log("Painel da Igreja renderizado com sucesso.");
             } else {
