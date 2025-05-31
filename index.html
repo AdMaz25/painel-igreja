@@ -9,24 +9,17 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            /* Tailwind gray-100. Pode ser aplicado diretamente no body com classes do Tailwind */
         }
-
-        /* Estilos customizados remanescentes ou para ajustes finos */
         .calendar-event {
-            /* font-size: 0.70rem; /* Ajustado para um pouco maior que 0.65rem, ou usar text-xs */
-            line-height: 1.3; /* Ajustado para melhor leitura */
+            line-height: 1.3;
         }
-
-        /* Cores dos eventos (mantidas como classes CSS para fácil referência no JS) */
-        .bg-event-culto { background-color: #ef4444; } /* Tailwind red-500 */
-        .bg-event-ebd { background-color: #6366f1; } /* Tailwind indigo-500 */
-        .bg-event-oracao { background-color: #14b8a6; } /* Tailwind teal-500 */
-        .bg-event-jovens { background-color: #f97316; } /* Tailwind orange-500 */
-        .bg-event-familia { background-color: #a855f7; } /* Tailwind purple-500 */
-        .bg-event-doutrina { background-color: #0ea5e9; } /* Tailwind sky-500 */
-        .text-event-aniversario { color: #ec4899; } /* Tailwind pink-500 */
-
+        .bg-event-culto { background-color: #ef4444; }
+        .bg-event-ebd { background-color: #6366f1; }
+        .bg-event-oracao { background-color: #14b8a6; }
+        .bg-event-jovens { background-color: #f97316; }
+        .bg-event-familia { background-color: #a855f7; }
+        .bg-event-doutrina { background-color: #0ea5e9; }
+        .text-event-aniversario { color: #ec4899; }
     </style>
 </head>
 <body class="bg-gray-100 p-4 md:p-6">
@@ -84,6 +77,18 @@
                             <span class="inline-flex items-center"><span class="text-event-aniversario font-bold">🎂</span> Aniversário</span>
                         </div>
                     </section>
+
+                     <section id="worship-schedule-section" class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200" aria-labelledby="worship-schedule-heading">
+                        <h2 id="worship-schedule-heading" class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                            <svg class="w-8 h-8 mr-3 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25V12m0 0v6.75m0-6.75a3.75 3.75 0 0 1 3.75 3.75H8.25A3.75 3.75 0 0 1 12 12Z" />
+                            </svg>
+                            Escala de Cultos
+                        </h2>
+                        <div id="worship-schedule-details" class="space-y-4 text-sm text-gray-700" aria-live="polite">
+                            <p>Carregando...</p>
+                        </div>
+                    </section>
                 </div>
 
                 <div class="lg:col-span-1 space-y-8">
@@ -98,10 +103,17 @@
                     </section>
 
                     <section class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200" aria-labelledby="birthdays-heading">
-                        <h2 id="birthdays-heading" class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
-                            <svg class="w-8 h-8 mr-3 text-pink-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a8.25 8.25 0 0 1-16.5 0v-8.25m16.5 0a3.75 3.75 0 0 0-7.5 0m7.5 0v-.375c0-.621-.504-1.125-1.125-1.125H13.5m-4.5 0v.375c0 .621.504 1.125 1.125 1.125h2.25M12 17.25a3.75 3.75 0 0 0 2.754-6.938q.114-.05.226-.1M12 17.25a3.75 3.75 0 0 1-2.754-6.938q-.114-.05-.226-.1M9 10.5a5.23 5.23 0 0 0-1.09 3.3c0 .899.32 1.724.86 2.362a5.209 5.209 0 0 0 4.46 0 5.23 5.23 0 0 0 .86-2.362c0-1.262-.422-2.428-1.09-3.3M15 10.5a5.23 5.23 0 0 1 1.09 3.3c0 .899-.32 1.724-.86 2.362a5.209 5.209 0 0 1-4.46 0 5.23 5.23 0 0 1-.86-2.362c0-1.262.422-2.428 1.09-3.3" /></svg>
-                            Aniversariantes da Semana
-                        </h2>
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 id="birthdays-heading" class="text-xl font-semibold text-gray-700 flex items-center">
+                                <svg class="w-8 h-8 mr-3 text-pink-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a8.25 8.25 0 0 1-16.5 0v-8.25m16.5 0a3.75 3.75 0 0 0-7.5 0m7.5 0v-.375c0-.621-.504-1.125-1.125-1.125H13.5m-4.5 0v.375c0 .621.504 1.125 1.125 1.125h2.25M12 17.25a3.75 3.75 0 0 0 2.754-6.938q.114-.05.226-.1M12 17.25a3.75 3.75 0 0 1-2.754-6.938q-.114-.05-.226-.1M9 10.5a5.23 5.23 0 0 0-1.09 3.3c0 .899.32 1.724.86 2.362a5.209 5.209 0 0 0 4.46 0 5.23 5.23 0 0 0 .86-2.362c0-1.262-.422-2.428-1.09-3.3M15 10.5a5.23 5.23 0 0 1 1.09 3.3c0 .899-.32 1.724-.86 2.362a5.209 5.209 0 0 1-4.46 0 5.23 5.23 0 0 1-.86-2.362c0-1.262.422-2.428 1.09-3.3" /></svg>
+                                Aniversariantes da Semana
+                            </h2>
+                            <button id="download-birthdays" aria-label="Baixar resumo de aniversariantes" class="p-2 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                </svg>
+                            </button>
+                        </div>
                         <div id="birthdays" class="space-y-3 text-sm" aria-live="polite">
                             {/* Itens de aniversariantes pelo JS */}
                         </div>
@@ -113,30 +125,26 @@
 
     <script>
     const PainelIgrejaApp = {
-        // --- Configurações e Estado ---
         config: {
-            // today: new Date(2025, 4, 30), // DATA FIXA ANTERIOR - COMENTADA
-            today: new Date(), // USA A DATA ATUAL DO SISTEMA
+            today: new Date(),
             diasDaSemana: ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"],
-            diasDaSemanaAbrev: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
             mesesDoAno: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
             startOfWeekMonday: true,
         },
         state: {
             currentDisplayDate: null,
         },
-
-        // --- Dados (Editáveis pelo usuário) ---
         data: {
             cleaningScheduleDefinition: [
-                { dayOfWeek: 1, responsible: "Iara e Tainá", task: "Banheiros e Salão Principal" },
-                { dayOfWeek: 2, responsible: "Núbia e Aldaline", task: "Cozinha e Área de Crianças" },
-                { dayOfWeek: 3, responsible: "Kleverton e Alcidinei", task: "Secretaria e Salas Auxiliares" },
-                { dayOfWeek: 4, responsible: "Niro e Lucas", task: "Áreas Externas e Hall de Entrada" },
-                { dayOfWeek: 5, responsible: "Deuzarina e Ana Aguiar", task: "Revisão Geral e Preparo Cultos" },
-                { dayOfWeek: 6, responsible: "João Paulo e Pedro Chagas", task: "Faxina Especial (se necessário)" },
-                { dayOfWeek: 0, responsible: "Hélida, Emanuel, Wendel", task: "Manutenção Leve" }
+                { dayOfWeek: 1, responsible: "Iara e Tainá" },
+                { dayOfWeek: 2, responsible: "Núbia e Aldaline" },
+                { dayOfWeek: 3, responsible: "Kleverton e Alcidinei" },
+                { dayOfWeek: 4, responsible: "Niro e Lucas" },
+                { dayOfWeek: 5, responsible: "Deuzarina e Ana Aguiar" },
+                { dayOfWeek: 6, responsible: "João Paulo e Pedro Chagas" },
+                { dayOfWeek: 0, responsible: "Hélida, Emanuel, Wendel" }
             ],
+            // Static part of birthdays and churchEvents
             birthdays: [
                 { name: "Lucas Mendes", date: "2025-05-28" },
                 { name: "Fernanda Costa", date: "2025-06-01" },
@@ -145,51 +153,21 @@
                 { name: "João Silva", date: "2025-07-15" },
             ],
             churchEvents: [
-                // --- MAIO 2025 (Exemplos) ---
+                { date: "2025-05-04", time: "19:00", type: "culto", title: "Culto de Domingo", direcao: "Pr. João", pregador: "Missionário Pedro" },
+                { date: "2025-05-11", time: "19:00", type: "culto", title: "Culto de Domingo (Dia Mães)", direcao: "Diácono Carlos", pregador: "Pra. Maria" },
+                { date: "2025-05-18", time: "19:00", type: "culto", title: "Culto de Domingo", direcao: "Presb. Antonio", pregador: "Pr. Visitante" },
+                { date: "2025-05-25", time: "19:00", type: "culto", title: "Culto de Domingo", direcao: "Jovem Líder", pregador: "Pr. João" },
+                { date: "2025-06-01", time: "19:00", type: "culto", title: "Culto de Domingo (Ceia)", direcao: "Pr. Presidente", pregador: "Pr. Presidente" },
+                { date: "2025-06-08", time: "19:00", type: "culto", title: "Culto de Domingo", direcao: "Diaconisa Ana", pregador: "Ev. Marcos" },
                 { date: "2025-05-06", time: "19:00", type: "doutrina", title: "Culto de Doutrina" },
                 { date: "2025-05-13", time: "19:00", type: "doutrina", title: "Culto de Doutrina" },
-                { date: "2025-05-20", time: "19:00", type: "doutrina", title: "Culto de Doutrina" },
-                { date: "2025-05-27", time: "19:00", type: "doutrina", title: "Culto de Doutrina" },
                 { date: "2025-05-07", time: "19:00", type: "oracao", title: "Círculo de Oração" },
                 { date: "2025-05-14", time: "19:00", type: "oracao", title: "Círculo de Oração" },
-                { date: "2025-05-21", time: "19:00", type: "oracao", title: "Círculo de Oração" },
-                { date: "2025-05-28", time: "19:00", type: "oracao", title: "Círculo de Oração" },
-                { date: "2025-05-01", time: "19:00", type: "familia", title: "Culto da Família" },
-                { date: "2025-05-08", time: "19:00", type: "familia", title: "Culto da Família" },
-                { date: "2025-05-15", time: "19:00", type: "familia", title: "Culto da Família" },
-                { date: "2025-05-22", time: "19:00", type: "familia", title: "Culto da Família" },
-                { date: "2025-05-29", time: "19:00", type: "familia", title: "Culto da Família" },
                 { date: "2025-05-03", time: "19:00", type: "jovens", title: "Culto Jovem" },
-                { date: "2025-05-10", time: "19:00", type: "jovens", title: "Culto Jovem" },
-                { date: "2025-05-17", time: "19:00", type: "jovens", title: "Culto Jovem" },
-                { date: "2025-05-24", time: "19:00", type: "jovens", title: "Culto Jovem" },
                 { date: "2025-05-31", time: "19:00", type: "jovens", title: "Culto Jovem", preacher: "Pr. Convidado" },
                 { date: "2025-05-04", time: "09:00", type: "ebd", title: "EBD" },
-                { date: "2025-05-04", time: "19:00", type: "culto", title: "Culto de Domingo" },
-                { date: "2025-05-11", time: "09:00", type: "ebd", title: "EBD" },
-                { date: "2025-05-11", time: "19:00", type: "culto", title: "Culto de Domingo (Dia Mães)" },
-                { date: "2025-05-18", time: "09:00", type: "ebd", title: "EBD" },
-                { date: "2025-05-18", time: "19:00", type: "culto", title: "Culto de Domingo" },
-                { date: "2025-05-25", time: "09:00", type: "ebd", title: "EBD" },
-                { date: "2025-05-25", time: "19:00", type: "culto", title: "Culto de Domingo" },
-
-                // --- JUNHO 2025 (Exemplos) ---
-                { date: "2025-06-03", time: "19:00", type: "doutrina", title: "Culto de Doutrina" },
-                { date: "2025-06-10", time: "19:00", type: "doutrina", title: "Culto de Doutrina" },
-                { date: "2025-06-04", time: "19:00", type: "oracao", title: "Círculo de Oração" },
-                { date: "2025-06-11", time: "19:00", type: "oracao", title: "Círculo de Oração" },
-                { date: "2025-06-05", time: "19:00", type: "familia", title: "Culto da Família" },
-                { date: "2025-06-12", time: "19:00", type: "familia", title: "Culto da Família" },
-                { date: "2025-06-07", time: "19:00", type: "jovens", title: "Culto Jovem" },
-                { date: "2025-06-14", time: "19:00", type: "jovens", title: "Culto Jovem" },
-                { date: "2025-06-01", time: "09:00", type: "ebd", title: "EBD" },
-                { date: "2025-06-01", time: "19:00", type: "culto", title: "Culto de Domingo (Ceia)" },
-                { date: "2025-06-08", time: "09:00", type: "ebd", title: "EBD" },
-                { date: "2025-06-08", time: "19:00", type: "culto", title: "Culto de Domingo" },
             ]
         },
-
-        // --- Funções Utilitárias ---
         utils: {
             parseDate: (dateString) => {
                 if (!dateString) return null;
@@ -218,40 +196,29 @@
                 return el;
             }
         },
-
-        // --- Funções de Renderização ---
         renderNextEvent: function() {
             const detailsContainer = document.getElementById('next-event-details');
             if (!detailsContainer) { console.error("Elemento #next-event-details não encontrado."); return; }
-
             detailsContainer.innerHTML = '';
-            const now = new Date(this.config.today); // Usa a data configurada (agora dinâmica)
-
+            const now = new Date(this.config.today);
             const upcomingEvents = this.data.churchEvents
-                .map(event => ({
-                    ...event,
-                    dateTime: new Date(`${event.date}T${event.time || '00:00'}:00`)
-                }))
+                .map(event => ({ ...event, dateTime: new Date(`${event.date}T${event.time || '00:00'}:00`) }))
                 .filter(event => event.dateTime >= now && (event.type === 'culto' || event.type === 'jovens' || event.type === 'familia' || event.type === 'doutrina'))
                 .sort((a, b) => a.dateTime - b.dateTime);
 
             if (upcomingEvents.length > 0) {
                 const nextEvent = upcomingEvents[0];
                 const dayName = this.config.diasDaSemana[nextEvent.dateTime.getDay()];
-
                 const fragment = document.createDocumentFragment();
                 let p = this.utils.createElement('p', ['text-lg', 'font-semibold', 'text-blue-600'], {}, nextEvent.title);
                 fragment.appendChild(p);
-
                 p = this.utils.createElement('p', ['text-sm', 'text-gray-600', 'mt-1']);
                 p.innerHTML = `<strong>Data:</strong> ${dayName}, ${this.utils.formatDate(nextEvent.dateTime)}`;
                 fragment.appendChild(p);
-
                 p = this.utils.createElement('p', ['text-sm', 'text-gray-600']);
                 p.innerHTML = `<strong>Horário:</strong> ${nextEvent.time}`;
                 fragment.appendChild(p);
-
-                if(nextEvent.preacher) {
+                if(nextEvent.preacher && nextEvent.type !== 'culto') { 
                     p = this.utils.createElement('p', ['text-sm', 'text-gray-600', 'mt-1']);
                     p.innerHTML = `<strong>Preletor:</strong> ${nextEvent.preacher}`;
                     fragment.appendChild(p);
@@ -261,63 +228,82 @@
                 detailsContainer.textContent = "Nenhum evento principal programado.";
             }
         },
-
         renderCleaningSchedule: function() {
             const scheduleContainer = document.getElementById('cleaning-schedule');
             if (!scheduleContainer) { console.error("Elemento #cleaning-schedule não encontrado."); return; }
             scheduleContainer.innerHTML = '';
-
-            const todayDayOfWeek = this.config.today.getDay(); // Usa a data configurada (agora dinâmica)
+            const todayDayOfWeek = this.config.today.getDay();
             const fragment = document.createDocumentFragment();
-
             const orderedSchedule = [...this.data.cleaningScheduleDefinition].sort((a, b) => {
-                let dayA = a.dayOfWeek;
-                let dayB = b.dayOfWeek;
-                if (this.config.startOfWeekMonday) {
-                    dayA = (dayA === 0) ? 7 : dayA;
-                    dayB = (dayB === 0) ? 7 : dayB;
-                }
+                let dayA = a.dayOfWeek; let dayB = b.dayOfWeek;
+                if (this.config.startOfWeekMonday) { dayA = (dayA === 0) ? 7 : dayA; dayB = (dayB === 0) ? 7 : dayB; }
                 return dayA - dayB;
             });
-
             orderedSchedule.forEach(item => {
                 const isCurrentDay = item.dayOfWeek === todayDayOfWeek;
-                const itemDiv = this.utils.createElement('div', [
-                    'py-2', 'pl-3', 'border-l-4',
-                    isCurrentDay ? 'border-blue-500 bg-blue-50 rounded-r-md' : 'border-gray-300'
-                ]);
-
+                const itemDiv = this.utils.createElement('div', ['py-2', 'pl-3', 'border-l-4', isCurrentDay ? 'border-blue-500 bg-blue-50 rounded-r-md' : 'border-gray-300']);
                 let dayName = this.config.diasDaSemana[item.dayOfWeek];
                 if (isCurrentDay) dayName += " (Hoje)";
-
                 const pDay = this.utils.createElement('p', ['font-semibold', isCurrentDay ? 'text-blue-600' : 'text-gray-800'], {}, dayName);
-                
                 const pResponsible = this.utils.createElement('p', ['text-xs', 'text-gray-600']);
                 pResponsible.innerHTML = `<span class="font-medium">${item.responsible}</span>`;
-
-                itemDiv.appendChild(pDay);
-                itemDiv.appendChild(pResponsible); 
-                fragment.appendChild(itemDiv);
+                itemDiv.appendChild(pDay); itemDiv.appendChild(pResponsible); fragment.appendChild(itemDiv);
             });
             scheduleContainer.appendChild(fragment);
+        },
+
+        renderWorshipSchedule: function() {
+            const detailsContainer = document.getElementById('worship-schedule-details');
+            if (!detailsContainer) { console.error("Elemento #worship-schedule-details não encontrado."); return; }
+            detailsContainer.innerHTML = '';
+            const now = new Date(this.config.today);
+            now.setHours(0,0,0,0); 
+
+            const upcomingServices = this.data.churchEvents
+                .filter(event => event.type === 'culto')
+                .map(event => ({ ...event, dateTime: new Date(`${event.date}T${event.time || '00:00'}:00`) }))
+                .filter(event => event.dateTime >= now)
+                .sort((a, b) => a.dateTime - b.dateTime)
+                .slice(0, 5); 
+
+            if (upcomingServices.length > 0) {
+                const fragment = document.createDocumentFragment();
+                upcomingServices.forEach(service => {
+                    const dayName = this.config.diasDaSemana[service.dateTime.getDay()];
+                    const formattedDate = this.utils.formatDate(service.dateTime);
+
+                    const serviceDiv = this.utils.createElement('div', ['p-3', 'rounded-md', 'border', 'border-gray-200', 'bg-gray-50']);
+                    
+                    let titleP = this.utils.createElement('p', ['font-semibold', 'text-purple-700'], {}, `${service.title} - ${dayName}, ${formattedDate} às ${service.time}`);
+                    serviceDiv.appendChild(titleP);
+
+                    if (service.direcao) {
+                        let direcaoP = this.utils.createElement('p', ['mt-1']);
+                        direcaoP.innerHTML = `<strong>Direção:</strong> ${service.direcao}`;
+                        serviceDiv.appendChild(direcaoP);
+                    }
+                    if (service.pregador) {
+                        let pregadorP = this.utils.createElement('p', ['mt-1']);
+                        pregadorP.innerHTML = `<strong>Pregador:</strong> ${service.pregador}`;
+                        serviceDiv.appendChild(pregadorP);
+                    }
+                    fragment.appendChild(serviceDiv);
+                });
+                detailsContainer.appendChild(fragment);
+            } else {
+                detailsContainer.textContent = "Nenhuma escala de culto programada para os próximos dias.";
+            }
         },
 
         renderBirthdays: function() {
             const birthdayContainer = document.getElementById('birthdays');
             if (!birthdayContainer) { console.error("Elemento #birthdays não encontrado."); return; }
             birthdayContainer.innerHTML = '';
-
-            const todayRef = new Date(this.config.today); // Usa a data configurada (agora dinâmica)
-            todayRef.setHours(0, 0, 0, 0);
-
+            const todayRef = new Date(this.config.today); todayRef.setHours(0, 0, 0, 0);
             const startOfWeek = new Date(todayRef);
             const dayOffset = this.config.startOfWeekMonday ? (todayRef.getDay() === 0 ? -6 : 1 - todayRef.getDay()) : -todayRef.getDay();
             startOfWeek.setDate(todayRef.getDate() + dayOffset);
-
-            const endOfWeek = new Date(startOfWeek);
-            endOfWeek.setDate(startOfWeek.getDate() + 6);
-            endOfWeek.setHours(23, 59, 59, 999);
-
+            const endOfWeek = new Date(startOfWeek); endOfWeek.setDate(startOfWeek.getDate() + 6); endOfWeek.setHours(23, 59, 59, 999);
             const fragment = document.createDocumentFragment();
             const weekBirthdays = this.data.birthdays
                 .map(b => ({ ...b, parsedDate: this.utils.parseDate(b.date) }))
@@ -328,138 +314,111 @@
                 birthdayContainer.appendChild(this.utils.createElement('p', ['text-gray-500', 'text-xs'], {}, 'Nenhum aniversariante nesta semana.'));
                 return;
             }
-
             weekBirthdays.forEach(b => {
                 const isToday = b.parsedDate.toDateString() === todayRef.toDateString();
-                const itemDiv = this.utils.createElement('div', [
-                    'py-2',
-                    isToday ? 'bg-pink-50 text-pink-700 rounded-md p-2' : ''
-                ]);
-
+                const itemDiv = this.utils.createElement('div', ['py-2', isToday ? 'bg-pink-50 text-pink-700 rounded-md p-2' : '']);
                 let dateString = `${this.config.diasDaSemana[b.parsedDate.getDay()]}, ${b.parsedDate.getDate()} de ${this.config.mesesDoAno[b.parsedDate.getMonth()]}`;
                 if (isToday) dateString += " (Hoje! 🎉)";
-
                 const pName = this.utils.createElement('p', ['font-semibold', isToday ? 'text-pink-700' : 'text-gray-800'], {}, b.name);
                 const pDate = this.utils.createElement('p', ['text-xs', isToday ? 'text-pink-600' : 'text-gray-600'], {}, dateString);
-
-                itemDiv.appendChild(pName);
-                itemDiv.appendChild(pDate);
-                fragment.appendChild(itemDiv);
+                itemDiv.appendChild(pName); itemDiv.appendChild(pDate); fragment.appendChild(itemDiv);
             });
             birthdayContainer.appendChild(fragment);
         },
+        downloadBirthdaysSummary: function() {
+            const todayRef = new Date(this.config.today); todayRef.setHours(0, 0, 0, 0);
+            const startOfWeek = new Date(todayRef);
+            const dayOffset = this.config.startOfWeekMonday ? (todayRef.getDay() === 0 ? -6 : 1 - todayRef.getDay()) : -todayRef.getDay();
+            startOfWeek.setDate(todayRef.getDate() + dayOffset);
+            const endOfWeek = new Date(startOfWeek); endOfWeek.setDate(startOfWeek.getDate() + 6); endOfWeek.setHours(23, 59, 59, 999);
 
+            const weekBirthdays = this.data.birthdays
+                .map(b => ({ ...b, parsedDate: this.utils.parseDate(b.date) }))
+                .filter(b => b.parsedDate && b.parsedDate >= startOfWeek && b.parsedDate <= endOfWeek)
+                .sort((a, b) => a.parsedDate - b.parsedDate);
+
+            if (weekBirthdays.length === 0) {
+                console.log("Nenhum aniversariante na semana para baixar.");
+                return;
+            }
+
+            let summaryText = "Aniversariantes da Semana:\n\n";
+            weekBirthdays.forEach(b => {
+                summaryText += `${b.name} - ${this.utils.formatDate(b.parsedDate)} (${this.config.diasDaSemana[b.parsedDate.getDay()]})\n`;
+            });
+
+            const blob = new Blob([summaryText], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `aniversariantes_semana_${this.utils.formatDate(startOfWeek, "DDMMYYYY")}_a_${this.utils.formatDate(endOfWeek, "DDMMYYYY")}.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        },
         renderCalendar: function() {
             const calendarDaysContainer = document.getElementById('calendar-days');
             const calendarMonthYearEl = document.getElementById('calendar-month-year');
-            if (!calendarDaysContainer || !calendarMonthYearEl) {
-                console.error("Elementos do calendário não encontrados.");
-                return;
-            }
-            calendarDaysContainer.innerHTML = '';
-            const fragment = document.createDocumentFragment();
-
+            if (!calendarDaysContainer || !calendarMonthYearEl) { console.error("Elementos do calendário não encontrados."); return; }
+            calendarDaysContainer.innerHTML = ''; const fragment = document.createDocumentFragment();
             calendarMonthYearEl.textContent = `${this.config.mesesDoAno[this.state.currentDisplayDate.getMonth()]} ${this.state.currentDisplayDate.getFullYear()}`;
             calendarDaysContainer.setAttribute('aria-label', `Calendário de ${calendarMonthYearEl.textContent}`);
-
-            const year = this.state.currentDisplayDate.getFullYear();
-            const month = this.state.currentDisplayDate.getMonth();
-
-            const firstDayOfMonth = new Date(year, month, 1);
-            const lastDayOfMonth = new Date(year, month + 1, 0);
-            const daysInMonth = lastDayOfMonth.getDate();
-            let startDayOfWeek = firstDayOfMonth.getDay();
-
+            const year = this.state.currentDisplayDate.getFullYear(); const month = this.state.currentDisplayDate.getMonth();
+            const firstDayOfMonth = new Date(year, month, 1); const lastDayOfMonth = new Date(year, month + 1, 0);
+            const daysInMonth = lastDayOfMonth.getDate(); let startDayOfWeek = firstDayOfMonth.getDay();
             let displayStartOffset = startDayOfWeek;
-
-            const todayRef = new Date(this.config.today); // Usa a data configurada (agora dinâmica)
-            todayRef.setHours(0,0,0,0);
-
-            // Dias do mês anterior
+            const todayRef = new Date(this.config.today); todayRef.setHours(0,0,0,0);
             const prevMonthLastDay = new Date(year, month, 0).getDate();
             for (let i = 0; i < displayStartOffset; i++) {
                 const day = prevMonthLastDay - displayStartOffset + 1 + i;
                 const dayEl = this.utils.createElement('div', ['min-h-[90px]', 'p-1', 'rounded-md', 'bg-gray-50', 'border', 'border-gray-200', 'flex', 'flex-col', 'items-start', 'text-xs']);
-                dayEl.setAttribute('role', 'gridcell');
-                dayEl.setAttribute('aria-label', `${day} (mês anterior)`);
+                dayEl.setAttribute('role', 'gridcell'); dayEl.setAttribute('aria-label', `${day} (mês anterior)`);
                 dayEl.appendChild(this.utils.createElement('span', ['font-semibold', 'text-gray-400', 'self-end', 'p-1', 'leading-none'], {}, day.toString()));
                 fragment.appendChild(dayEl);
             }
-
-            // Dias do mês atual
             for (let day = 1; day <= daysInMonth; day++) {
                 const currentDate = new Date(year, month, day);
                 const dayClasses = ['min-h-[90px]', 'p-1', 'rounded-md', 'border', 'flex', 'flex-col', 'items-start', 'text-xs', 'hover:bg-gray-50', 'transition-colors'];
                 let ariaLabelDay = `${day} de ${this.config.mesesDoAno[month]}, ${this.config.diasDaSemana[currentDate.getDay()]}`;
-
-                if (currentDate.toDateString() === todayRef.toDateString()) {
-                    dayClasses.push('bg-blue-500', 'border-blue-600');
-                } else {
-                    dayClasses.push('bg-white', 'border-gray-200');
-                }
-
-                const dayEl = this.utils.createElement('div', dayClasses);
-                dayEl.setAttribute('role', 'gridcell');
-
+                if (currentDate.toDateString() === todayRef.toDateString()) { dayClasses.push('bg-blue-500', 'border-blue-600'); } else { dayClasses.push('bg-white', 'border-gray-200'); }
+                const dayEl = this.utils.createElement('div', dayClasses); dayEl.setAttribute('role', 'gridcell');
                 const dayNumberClasses = ['font-semibold', 'self-end', 'p-0.5', 'leading-none', 'w-6', 'h-6', 'flex', 'items-center', 'justify-center', 'rounded-full'];
-                 if (currentDate.toDateString() === todayRef.toDateString()) {
-                    dayNumberClasses.push('bg-blue-500', 'text-white');
-                } else {
-                    dayNumberClasses.push('text-gray-700');
-                }
+                if (currentDate.toDateString() === todayRef.toDateString()) { dayNumberClasses.push('bg-blue-500', 'text-white'); } else { dayNumberClasses.push('text-gray-700'); }
                 dayEl.appendChild(this.utils.createElement('span', dayNumberClasses, {}, day.toString()));
-
-
                 const eventsOnThisDay = this.data.churchEvents.filter(e => e.date === this.utils.formatDate(currentDate, "AAAA-MM-DD"));
                 const birthdaysOnThisDay = this.data.birthdays.filter(b => {
                     const bDate = this.utils.parseDate(b.date);
                     return bDate && bDate.getDate() === day && bDate.getMonth() === month && bDate.getFullYear() === year;
                 });
-
-                let eventInfosForAria = [];
-                const eventsContainer = this.utils.createElement('div', ['w-full', 'mt-0.5', 'space-y-0.5', 'overflow-hidden']);
-
-
+                let eventInfosForAria = []; const eventsContainer = this.utils.createElement('div', ['w-full', 'mt-0.5', 'space-y-0.5', 'overflow-hidden']);
                 eventsOnThisDay.forEach(event => {
                     const eventDiv = this.utils.createElement('div', ['calendar-event', `bg-event-${event.type}`, 'text-white', 'text-[0.7rem]', 'px-1', 'py-0.5', 'rounded', 'truncate', 'w-full'], {}, event.title);
                     eventDiv.setAttribute('title', `${event.title} às ${event.time}`);
-                    eventsContainer.appendChild(eventDiv);
-                    eventInfosForAria.push(`${event.title} às ${event.time}`);
+                    eventsContainer.appendChild(eventDiv); eventInfosForAria.push(`${event.title} às ${event.time}`);
                 });
-
                 if (birthdaysOnThisDay.length > 0) {
                     const bDayDiv = this.utils.createElement('div', ['calendar-event', 'flex', 'items-center', 'text-[0.7rem]', 'px-1', 'py-0.5', 'rounded', 'bg-pink-100', 'w-full']);
                     bDayDiv.innerHTML = `<span class="text-event-aniversario font-bold mr-1">🎂</span> <span class="text-pink-700 truncate">${birthdaysOnThisDay.map(b => b.name.split(' ')[0]).join(', ')}</span>`;
                     bDayDiv.setAttribute('title', `Aniversário: ${birthdaysOnThisDay.map(b => b.name).join(', ')}`);
-                    eventsContainer.appendChild(bDayDiv);
-                    eventInfosForAria.push(`${birthdaysOnThisDay.length} aniversariante(s): ${birthdaysOnThisDay.map(b => b.name).join(', ')}`);
+                    eventsContainer.appendChild(bDayDiv); eventInfosForAria.push(`${birthdaysOnThisDay.length} aniversariante(s): ${birthdaysOnThisDay.map(b => b.name).join(', ')}`);
                 }
                 dayEl.appendChild(eventsContainer);
-
-                if(eventInfosForAria.length > 0) {
-                    ariaLabelDay += `. Eventos: ${eventInfosForAria.join("; ")}`;
-                }
-                dayEl.setAttribute('aria-label', ariaLabelDay);
-                fragment.appendChild(dayEl);
+                if(eventInfosForAria.length > 0) { ariaLabelDay += `. Eventos: ${eventInfosForAria.join("; ")}`; }
+                dayEl.setAttribute('aria-label', ariaLabelDay); fragment.appendChild(dayEl);
             }
-
-            // Dias do próximo mês
-            const totalCells = displayStartOffset + daysInMonth;
-            const remainingCells = (totalCells % 7 === 0) ? 0 : 7 - (totalCells % 7);
+            const totalCells = displayStartOffset + daysInMonth; const remainingCells = (totalCells % 7 === 0) ? 0 : 7 - (totalCells % 7);
             for (let i = 1; i <= remainingCells; i++) {
                 const dayEl = this.utils.createElement('div', ['min-h-[90px]', 'p-1', 'rounded-md', 'bg-gray-50', 'border', 'border-gray-200', 'flex', 'flex-col', 'items-start', 'text-xs']);
-                dayEl.setAttribute('role', 'gridcell');
-                dayEl.setAttribute('aria-label', `${i} (próximo mês)`);
+                dayEl.setAttribute('role', 'gridcell'); dayEl.setAttribute('aria-label', `${i} (próximo mês)`);
                 dayEl.appendChild(this.utils.createElement('span', ['font-semibold', 'text-gray-400', 'self-end', 'p-1', 'leading-none'], {}, i.toString()));
                 fragment.appendChild(dayEl);
             }
             calendarDaysContainer.appendChild(fragment);
         },
-
-        // --- Event Listeners ---
         setupEventListeners: function() {
             const prevMonthBtn = document.getElementById('prev-month');
             const nextMonthBtn = document.getElementById('next-month');
+            const downloadBirthdaysBtn = document.getElementById('download-birthdays');
 
             if (prevMonthBtn) {
                 prevMonthBtn.addEventListener('click', () => {
@@ -467,30 +426,37 @@
                     this.renderCalendar();
                 });
             } else { console.error("Botão #prev-month não encontrado.");}
-
             if (nextMonthBtn) {
                 nextMonthBtn.addEventListener('click', () => {
                     this.state.currentDisplayDate.setMonth(this.state.currentDisplayDate.getMonth() + 1);
                     this.renderCalendar();
                 });
             } else { console.error("Botão #next-month não encontrado.");}
+            if (downloadBirthdaysBtn) {
+                downloadBirthdaysBtn.addEventListener('click', () => {
+                    this.downloadBirthdaysSummary();
+                });
+            } else { console.error("Botão #download-birthdays não encontrado."); }
         },
-
-        // --- Inicialização ---
         init: function() {
-            // Garante que currentDisplayDate seja inicializado com base na data 'today' (que agora é dinâmica)
             this.state.currentDisplayDate = new Date(this.config.today.getFullYear(), this.config.today.getMonth(), 1);
+            
+            // Initialize dynamic dates for birthdays and churchEvents here
+            this.data.birthdays.push(
+                { name: "Ana Clara", date: this.utils.formatDate(new Date(new Date().setDate(new Date().getDate() + 1)), "AAAA-MM-DD") },
+                { name: "Carlos Eduardo", date: this.utils.formatDate(new Date(new Date().setDate(new Date().getDate() + 3)), "AAAA-MM-DD") }
+            );
+            this.data.churchEvents.push(
+                { date: this.utils.formatDate(new Date(), "AAAA-MM-DD"), time: "19:30", type: "culto", title: "Culto de Hoje", direcao: "Irmão José", pregador: "Irmã Lúcia" },
+                { date: this.utils.formatDate(new Date(new Date().setDate(new Date().getDate() + 7))), time: "19:00", type: "culto", title: "Culto Próxima Semana", direcao: "Equipe Louvor", pregador: "Pr. Convidado Especial" }
+            );
 
-
-            if (!document.getElementById('cleaning-schedule') ||
-                !document.getElementById('birthdays') ||
-                !document.getElementById('calendar-days') ||
-                !document.getElementById('next-event-details')) {
-                console.error("Um ou mais containers de seção não foram encontrados. A aplicação pode não funcionar corretamente.");
+            if (!document.getElementById('cleaning-schedule') || !document.getElementById('birthdays') || !document.getElementById('calendar-days') || !document.getElementById('next-event-details') || !document.getElementById('worship-schedule-details')) {
+                console.error("Um ou mais containers de seção não foram encontrados.");
             }
-
             this.renderNextEvent();
             this.renderCleaningSchedule();
+            this.renderWorshipSchedule(); 
             this.renderBirthdays();
             this.renderCalendar();
             this.setupEventListeners();
