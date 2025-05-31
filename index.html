@@ -115,8 +115,8 @@
     const PainelIgrejaApp = {
         // --- Configurações e Estado ---
         config: {
-            today: new Date(2025, 4, 30), // Mês é 0-indexado (4 = Maio). Sexta-feira.
-            // today: new Date(), // Para usar a data atual real
+            // today: new Date(2025, 4, 30), // DATA FIXA ANTERIOR - COMENTADA
+            today: new Date(), // USA A DATA ATUAL DO SISTEMA
             diasDaSemana: ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"],
             diasDaSemanaAbrev: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
             mesesDoAno: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
@@ -128,7 +128,7 @@
 
         // --- Dados (Editáveis pelo usuário) ---
         data: {
-            cleaningScheduleDefinition: [ // Escala de limpeza atualizada
+            cleaningScheduleDefinition: [
                 { dayOfWeek: 1, responsible: "Iara e Tainá", task: "Banheiros e Salão Principal" },
                 { dayOfWeek: 2, responsible: "Núbia e Aldaline", task: "Cozinha e Área de Crianças" },
                 { dayOfWeek: 3, responsible: "Kleverton e Alcidinei", task: "Secretaria e Salas Auxiliares" },
@@ -140,7 +140,7 @@
             birthdays: [
                 { name: "Lucas Mendes", date: "2025-05-28" },
                 { name: "Fernanda Costa", date: "2025-06-01" },
-                { name: "Ricardo Alves", date: "2025-05-30"}, // HOJE no exemplo
+                { name: "Ricardo Alves", date: "2025-05-30"},
                 { name: "Beatriz Almeida", date: "2025-06-05" },
                 { name: "João Silva", date: "2025-07-15" },
             ],
@@ -163,7 +163,7 @@
                 { date: "2025-05-10", time: "19:00", type: "jovens", title: "Culto Jovem" },
                 { date: "2025-05-17", time: "19:00", type: "jovens", title: "Culto Jovem" },
                 { date: "2025-05-24", time: "19:00", type: "jovens", title: "Culto Jovem" },
-                { date: "2025-05-31", time: "19:00", type: "jovens", title: "Culto Jovem", preacher: "Pr. Convidado" }, // Próximo evento principal
+                { date: "2025-05-31", time: "19:00", type: "jovens", title: "Culto Jovem", preacher: "Pr. Convidado" },
                 { date: "2025-05-04", time: "09:00", type: "ebd", title: "EBD" },
                 { date: "2025-05-04", time: "19:00", type: "culto", title: "Culto de Domingo" },
                 { date: "2025-05-11", time: "09:00", type: "ebd", title: "EBD" },
@@ -207,10 +207,9 @@
             },
             createElement: (tag, classList = [], attributes = {}, textContent = null) => {
                 const el = document.createElement(tag);
-                // Process classList to handle strings with multiple classes
                 const flatClassList = classList.flatMap(c => (typeof c === 'string' ? c.split(' ') : []));
                 if (flatClassList.length > 0) {
-                    el.classList.add(...flatClassList.filter(c => c)); // Filter out empty strings
+                    el.classList.add(...flatClassList.filter(c => c));
                 }
                 for (const key in attributes) {
                     el.setAttribute(key, attributes[key]);
@@ -226,7 +225,7 @@
             if (!detailsContainer) { console.error("Elemento #next-event-details não encontrado."); return; }
 
             detailsContainer.innerHTML = '';
-            const now = new Date(this.config.today);
+            const now = new Date(this.config.today); // Usa a data configurada (agora dinâmica)
 
             const upcomingEvents = this.data.churchEvents
                 .map(event => ({
@@ -268,7 +267,7 @@
             if (!scheduleContainer) { console.error("Elemento #cleaning-schedule não encontrado."); return; }
             scheduleContainer.innerHTML = '';
 
-            const todayDayOfWeek = this.config.today.getDay();
+            const todayDayOfWeek = this.config.today.getDay(); // Usa a data configurada (agora dinâmica)
             const fragment = document.createDocumentFragment();
 
             const orderedSchedule = [...this.data.cleaningScheduleDefinition].sort((a, b) => {
@@ -294,8 +293,6 @@
                 const pDay = this.utils.createElement('p', ['font-semibold', isCurrentDay ? 'text-blue-600' : 'text-gray-800'], {}, dayName);
                 
                 const pResponsible = this.utils.createElement('p', ['text-xs', 'text-gray-600']);
-                // A lógica para remover " & Equipe X" foi removida, pois os novos nomes não seguem esse padrão.
-                // A tarefa também foi removida da exibição conforme a solicitação anterior.
                 pResponsible.innerHTML = `<span class="font-medium">${item.responsible}</span>`;
 
                 itemDiv.appendChild(pDay);
@@ -310,7 +307,7 @@
             if (!birthdayContainer) { console.error("Elemento #birthdays não encontrado."); return; }
             birthdayContainer.innerHTML = '';
 
-            const todayRef = new Date(this.config.today);
+            const todayRef = new Date(this.config.today); // Usa a data configurada (agora dinâmica)
             todayRef.setHours(0, 0, 0, 0);
 
             const startOfWeek = new Date(todayRef);
@@ -375,7 +372,7 @@
 
             let displayStartOffset = startDayOfWeek;
 
-            const todayRef = new Date(this.config.today);
+            const todayRef = new Date(this.config.today); // Usa a data configurada (agora dinâmica)
             todayRef.setHours(0,0,0,0);
 
             // Dias do mês anterior
@@ -481,7 +478,9 @@
 
         // --- Inicialização ---
         init: function() {
+            // Garante que currentDisplayDate seja inicializado com base na data 'today' (que agora é dinâmica)
             this.state.currentDisplayDate = new Date(this.config.today.getFullYear(), this.config.today.getMonth(), 1);
+
 
             if (!document.getElementById('cleaning-schedule') ||
                 !document.getElementById('birthdays') ||
