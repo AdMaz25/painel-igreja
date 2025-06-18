@@ -44,7 +44,7 @@ const PainelIgrejaApp = {
             },
             {
                 dayOfWeek: 2, teamName: "Equipe Pré-Doutrina",
-                members: ["Neuriane", "Ana Aguiar"],
+                members: ["Neuriane", "Ana Aguiar", "Pedro Chagas"],
                 mission: "Fazer a manutenção focada nos banheiros e na organização do salão, preparando para o culto da noite."
             },
             {
@@ -213,11 +213,6 @@ const PainelIgrejaApp = {
             dayDiv.appendChild(missionP);
             fragment.appendChild(dayDiv);
         });
-        
-        const jokerDiv = this.utils.createElement('div', ['mt-4', 'p-3', 'bg-green-50', 'border-l-4', 'border-green-500', 'rounded-r-lg']);
-        jokerDiv.innerHTML = `<p class="font-bold text-green-800">Coringa Estratégico ♟️</p>
-                             <p class="text-sm text-green-700"><b>Pedro Chagas</b> está de prontidão para cobrir qualquer ausência e garantir que nenhuma missão fique descoberta. Contate-o se sua equipe precisar de apoio.</p>`;
-        fragment.appendChild(jokerDiv);
         
         scheduleContainer.appendChild(fragment);
     },
