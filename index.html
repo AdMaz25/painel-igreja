@@ -83,7 +83,6 @@
     <main class="pt-28 md:pt-32">
         <div class="max-w-3xl mx-auto space-y-8">
 
-            <!-- Seção Escala de Limpeza Semanal -->
             <section class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200" aria-labelledby="cleaning-heading">
                  <div class="flex justify-between items-center mb-4">
                     <h2 id="cleaning-heading" class="text-xl font-semibold text-gray-700 flex items-center">
@@ -101,7 +100,6 @@
                 </div>
             </section>
 
-            <!-- Seção Calendário -->
             <section class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200" aria-labelledby="calendar-heading">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
                     <h2 id="calendar-heading" class="text-xl font-semibold text-gray-700 flex items-center mb-2 sm:mb-0">
@@ -183,34 +181,13 @@
         },
         data: {
             cleaningScheduleDefinition: [ 
-                {
-                    dayOfWeek: 1, teamName: "Equipe de Reset",
-                    members: ["Iara", "Sebastião", "Tayna", "Davi"]
-                },
-                {
-                    dayOfWeek: 2, teamName: "Equipe Pré-Doutrina",
-                    members: ["Neuriane", "Ana Aguiar", "Pedro Chagas"]
-                },
-                {
-                    dayOfWeek: 3, teamName: "Equipe de Cuidado e Zelo",
-                    members: ["Irma Piedade", "João Paulo", "Emanuel"]
-                },
-                {
-                    dayOfWeek: 4, teamName: "Equipe Pré-Culto da Família",
-                    members: ["Luiz Valnei", "Micilene", "Isaque Lira"]
-                },
-                {
-                    dayOfWeek: 5, teamName: "Equipe da Limpeza Geral",
-                    members: ["Rosana", "Patrick", "Nubia Gomes", "Aldaline"]
-                },
-                {
-                    dayOfWeek: 6, teamName: "Equipe de Jovens",
-                    members: ["Marta Nogueira", "Juliana Almeida", "Lucas Almeida", "Kleverton Pantoja"]
-                },
-                {
-                    dayOfWeek: 0, teamName: "Guardiões do Templo",
-                    members: ["Alcidinei", "Deuzarina", "Joana Silva", "Darcom", "Arinelson"]
-                }
+                { dayOfWeek: 1, members: ["Iara", "Sebastião", "Tayna", "Davi"] },
+                { dayOfWeek: 2, members: ["Neuriane", "Ana Aguiar", "Pedro Chagas"] },
+                { dayOfWeek: 3, members: ["Irma Piedade", "João Paulo", "Emanuel"] },
+                { dayOfWeek: 4, members: ["Luiz Valnei", "Micilene", "Isaque Lira"] },
+                { dayOfWeek: 5, members: ["Rosana", "Patrick", "Nubia Gomes", "Aldaline"] },
+                { dayOfWeek: 6, members: ["Marta Nogueira", "Juliana Almeida", "Lucas Almeida", "Kleverton Pantoja"] },
+                { dayOfWeek: 0, members: ["Alcidinei", "Deuzarina", "Joana Silva", "Darcom", "Arinelson"] }
             ],
             churchEventsBase: [ 
                 { date: "2025-05-11", time: "19:00", type: "especial", title: "Culto Especial Dia das Mães" },
@@ -329,8 +306,7 @@
                 const dayDiv = this.utils.createElement('div', dayDivClasses);
 
                 const dayNameText = this.config.diasDaSemana[item.dayOfWeek] + (isCurrentDay ? " (Hoje)" : "");
-                const headerP = this.utils.createElement('p', ['font-bold', isCurrentDay ? 'text-blue-700' : 'text-gray-800'], {});
-                headerP.innerHTML = `${dayNameText} - <span class="font-semibold">${item.teamName}</span>`;
+                const headerP = this.utils.createElement('p', ['font-bold', isCurrentDay ? 'text-blue-700' : 'text-gray-800'], {}, dayNameText);
                 
                 const membersP = this.utils.createElement('p', ['text-sm', 'text-gray-700', 'mt-1'], {});
                 membersP.innerHTML = `<span class="font-semibold">Membros:</span> ${item.members.join(', ')}`;
@@ -395,7 +371,7 @@
             orderedSchedule.forEach(item => {
                 const dayName = this.config.diasDaSemana[item.dayOfWeek];
                 const responsibleText = Array.isArray(item.members) ? item.members.join(', ') : item.members;
-                textToCopy += `${dayName} (${item.teamName}): ${responsibleText}\n`;
+                textToCopy += `${dayName}: ${responsibleText}\n`;
             });
             const buttonElement = document.getElementById('copy-cleaning-schedule');
             this.copyToClipboard(textToCopy, buttonElement);
@@ -503,8 +479,10 @@
                     dayEl.appendChild(eventsDisplayContainer);
                     if(eventInfosForAria.length === 0) { 
                          eventsDisplayContainer.appendChild(this.utils.createElement('p', ['text-xs', 'text-gray-400', 'italic'], {}, 'Nenhum evento agendado.'));
+                        ariaLabelDay += ". Nenhum evento agendado.";
+                    } else {
+                         ariaLabelDay += `. Eventos: ${eventInfosForAria.join("; ")}`; 
                     }
-                    ariaLabelDay += `. Eventos: ${eventInfosForAria.length > 0 ? eventInfosForAria.join("; ") : "Nenhum"}`;
                     dayEl.setAttribute('aria-label', ariaLabelDay); 
                     fragment.appendChild(dayEl);
                 }
